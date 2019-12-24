@@ -1,6 +1,3 @@
-# jrm-killboard
-Killboard - Wordpress Plugin
-
 === JRM Killboard ===
 Contributors: jrmarco
 Tags: eveonline, eve online, eve, killboard, game

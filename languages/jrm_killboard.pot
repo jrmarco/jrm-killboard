@@ -1,0 +1,560 @@
+# Copyright (C) 2019 jrmarco
+# This file is distributed under the same license as the JRM Killboard plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: JRM Killboard 1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/jrm_killboard\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2019-12-24T13:58:10+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.4.0\n"
+"X-Domain: jrm_killboard\n"
+
+#. Plugin Name of the plugin
+msgid "JRM Killboard"
+msgstr ""
+
+#. Description of the plugin
+msgid "Killboard for Eve Online Killmails - Plugin allows to store and display your corporation kills using the Killmail system. They can be synched manually or automatically via the ESI API ( please read the instruction to use the ESI API ). Lots of customization allows to display your killboard in the way you like it. Developed by jrmarco ( Pillar Omaristos ). Fly safe capsuler!"
+msgstr ""
+
+#. Author of the plugin
+msgid "jrmarco"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://bigm.it"
+msgstr ""
+
+#: admin/partials/copyright_footer.php:2
+#: public/partials/frontend.php:92
+msgid "Made with ♥ by %s"
+msgstr ""
+
+#: admin/partials/main_panel.php:3
+msgid "Would you like to delete this Killmail [%d] ?"
+msgstr ""
+
+#: admin/partials/main_panel.php:4
+#: admin/partials/main_settings.php:7
+msgid "..Please wait.."
+msgstr ""
+
+#: admin/partials/main_panel.php:5
+#: admin/partials/main_settings.php:8
+msgid "..Please wait. Process may take some time to process.."
+msgstr ""
+
+#: admin/partials/main_panel.php:9
+msgid "Manually import Killmail"
+msgstr ""
+
+#: admin/partials/main_panel.php:11
+msgid "Killmail URL"
+msgstr ""
+
+#: admin/partials/main_panel.php:13
+msgid "Load Kill"
+msgstr ""
+
+#: admin/partials/main_panel.php:17
+msgid "Item price need your attention:"
+msgstr ""
+
+#: admin/partials/main_panel.php:21
+msgid "Calculate costs"
+msgstr ""
+
+#: admin/partials/main_panel.php:24
+msgid "Missing price"
+msgstr ""
+
+#: admin/partials/main_panel.php:31
+msgid "Set price"
+msgstr ""
+
+#: admin/partials/main_panel.php:40
+msgid "Objective"
+msgstr ""
+
+#: admin/partials/main_panel.php:40
+msgid "Date"
+msgstr ""
+
+#: admin/partials/main_panel.php:40
+msgid "Attacker"
+msgstr ""
+
+#: admin/partials/main_panel.php:40
+msgid "Value"
+msgstr ""
+
+#: admin/partials/main_panel.php:40
+msgid "Actions"
+msgstr ""
+
+#: admin/partials/main_panel.php:50
+msgid "Hide"
+msgstr ""
+
+#: admin/partials/main_panel.php:50
+msgid "Show"
+msgstr ""
+
+#: admin/partials/main_panel.php:53
+#: jrmkb_killboard.php:511
+msgid "Pending"
+msgstr ""
+
+#: admin/partials/main_panel.php:56
+#: jrmkb_killboard.php:529
+#: public/partials/frontend.php:59
+msgid "Victim"
+msgstr ""
+
+#: admin/partials/main_panel.php:56
+#: jrmkb_killboard.php:529
+#: public/partials/frontend.php:59
+msgid "Corporation"
+msgstr ""
+
+#: admin/partials/main_panel.php:62
+msgid "Delete"
+msgstr ""
+
+#: admin/partials/main_panel.php:66
+#: public/partials/frontend.php:73
+msgid "No kills available"
+msgstr ""
+
+#: admin/partials/main_panel.php:74
+msgid "First page"
+msgstr ""
+
+#: admin/partials/main_panel.php:77
+msgid "Previous"
+msgstr ""
+
+#: admin/partials/main_panel.php:80
+#: jrmkb_killboard.php:547
+#: public/partials/frontend.php:13
+#: public/partials/frontend.php:83
+msgid "of"
+msgstr ""
+
+#: admin/partials/main_panel.php:83
+msgid "Next"
+msgstr ""
+
+#: admin/partials/main_panel.php:86
+msgid "Last page"
+msgstr ""
+
+#: admin/partials/main_panel.php:88
+msgid "Page"
+msgstr ""
+
+#: admin/partials/main_panel.php:90
+msgid "Go"
+msgstr ""
+
+#: admin/partials/main_settings.php:2
+#: jrmkb_killboard.php:78
+msgid "Settings"
+msgstr ""
+
+#: admin/partials/main_settings.php:11
+msgid "General Settings"
+msgstr ""
+
+#: admin/partials/main_settings.php:13
+msgid "ESI Client Configurations"
+msgstr ""
+
+#: admin/partials/main_settings.php:15
+#: admin/partials/main_settings.php:16
+msgid "Corporation Id"
+msgstr ""
+
+#: admin/partials/main_settings.php:18
+msgid "Auto Synchronization requires ESI Application. You can create one %s if you don't have it"
+msgstr ""
+
+#: admin/partials/main_settings.php:18
+msgid "here"
+msgstr ""
+
+#: admin/partials/main_settings.php:20
+#: admin/partials/main_settings.php:21
+msgid "Client Id"
+msgstr ""
+
+#: admin/partials/main_settings.php:24
+#: admin/partials/main_settings.php:25
+msgid "Client Secret"
+msgstr ""
+
+#: admin/partials/main_settings.php:28
+msgid "Synchronization"
+msgstr ""
+
+#: admin/partials/main_settings.php:34
+msgid "Synchronization can be achieved using %s. We discourage the use of it, especially for heavy load platform or if you have direct access to system cron or external service. "
+msgstr ""
+
+#: admin/partials/main_settings.php:37
+#: admin/partials/main_settings.php:76
+#: admin/partials/main_settings.php:221
+msgid "Save configurations"
+msgstr ""
+
+#: admin/partials/main_settings.php:40
+msgid "ESI SSO Authentication"
+msgstr ""
+
+#: admin/partials/main_settings.php:45
+msgid "Status"
+msgstr ""
+
+#: admin/partials/main_settings.php:45
+msgid "Synched"
+msgstr ""
+
+#: admin/partials/main_settings.php:45
+msgid "Offline"
+msgstr ""
+
+#: admin/partials/main_settings.php:50
+msgid "EVE SSO Authenticate"
+msgstr ""
+
+#: admin/partials/main_settings.php:55
+msgid "Remove"
+msgstr ""
+
+#: admin/partials/main_settings.php:62
+msgid "Cronjob Access Point: "
+msgstr ""
+
+#: admin/partials/main_settings.php:65
+msgid "External Cronjob Configuration"
+msgstr ""
+
+#: admin/partials/main_settings.php:67
+msgid "Endpoints Name"
+msgstr ""
+
+#: admin/partials/main_settings.php:71
+msgid "Endpoints Secret"
+msgstr ""
+
+#: admin/partials/main_settings.php:73
+msgid "Random"
+msgstr ""
+
+#: admin/partials/main_settings.php:81
+msgid "Graphic Settings"
+msgstr ""
+
+#: admin/partials/main_settings.php:83
+#: admin/partials/main_settings.php:84
+msgid "Killboard title"
+msgstr ""
+
+#: admin/partials/main_settings.php:89
+msgid "Margin"
+msgstr ""
+
+#: admin/partials/main_settings.php:95
+msgid "Padding"
+msgstr ""
+
+#: admin/partials/main_settings.php:103
+msgid "Elements per page"
+msgstr ""
+
+#: admin/partials/main_settings.php:113
+msgid "Show kills"
+msgstr ""
+
+#: admin/partials/main_settings.php:115
+msgid "All"
+msgstr ""
+
+#: admin/partials/main_settings.php:116
+msgid "Done"
+msgstr ""
+
+#: admin/partials/main_settings.php:117
+msgid "Suffered"
+msgstr ""
+
+#: admin/partials/main_settings.php:125
+msgid "Font size"
+msgstr ""
+
+#: admin/partials/main_settings.php:135
+msgid "Image size"
+msgstr ""
+
+#: admin/partials/main_settings.php:145
+msgid "Kills done"
+msgstr ""
+
+#: admin/partials/main_settings.php:149
+#: admin/partials/main_settings.php:166
+msgid "Background color"
+msgstr ""
+
+#: admin/partials/main_settings.php:156
+#: admin/partials/main_settings.php:173
+msgid "Text color"
+msgstr ""
+
+#: admin/partials/main_settings.php:162
+msgid "Kills suffered"
+msgstr ""
+
+#: admin/partials/main_settings.php:180
+msgid "Table columns"
+msgstr ""
+
+#: admin/partials/main_settings.php:188
+msgid "Display Developer Sign on Frontend"
+msgstr ""
+
+#: admin/partials/main_settings.php:191
+msgid "Yes"
+msgstr ""
+
+#: admin/partials/main_settings.php:195
+msgid "No"
+msgstr ""
+
+#: admin/partials/main_settings.php:199
+msgid "Logs"
+msgstr ""
+
+#: admin/partials/main_settings.php:200
+msgid "Read log"
+msgstr ""
+
+#: admin/partials/main_settings.php:201
+msgid "Clear log"
+msgstr ""
+
+#: admin/partials/main_settings.php:209
+msgid "Statistics"
+msgstr ""
+
+#: admin/partials/main_settings.php:210
+msgid "Ready"
+msgstr ""
+
+#: admin/partials/main_settings.php:212
+msgid "Capsuler"
+msgstr ""
+
+#: admin/partials/main_settings.php:213
+msgid "Killmails"
+msgstr ""
+
+#: admin/partials/main_settings.php:214
+msgid "Corporations"
+msgstr ""
+
+#: admin/partials/main_settings.php:215
+msgid "Items"
+msgstr ""
+
+#: admin/partials/main_settings.php:217
+msgid "Price synced"
+msgstr ""
+
+#: admin/partials/main_settings.php:220
+msgid "Sync price"
+msgstr ""
+
+#: admin/partials/main_settings.php:223
+msgid "Processing Logs"
+msgstr ""
+
+#: admin/partials/main_settings.php:225
+msgid "Killmail"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:40
+msgid "Disabled"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:41
+msgid "Every hour"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:42
+msgid "Twice a day"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:43
+msgid "Daily"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:69
+msgid "Small"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:70
+msgid "Medium"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:71
+msgid "Big"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:72
+msgid "Original"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:82
+msgid "Ship"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:83
+msgid "Target"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:84
+msgid "Attackers"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:85
+msgid "Damage"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:86
+msgid "Position"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:190
+#: includes/class.jrmkillboard.php:192
+#: includes/class.jrmkillboard.php:194
+msgid "Final blow"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:190
+msgid "and others"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:192
+msgid "and another one"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:264
+msgid "Error:: Something went wrong and I was not able to store Killmail data"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:438
+msgid "This Killmail does not exists"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:449
+msgid "This Killmail does not belong to your corporation"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:455
+msgid "Something went wrong"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:461
+msgid "Invalid Killmail link"
+msgstr ""
+
+#: includes/class.jrmkillboard.php:1011
+msgid "Missing Price file"
+msgstr ""
+
+#: includes/class.jrmkillboardfe.php:132
+msgid "JRMKillboard Fatal Error:: Missing template file"
+msgstr ""
+
+#: includes/class.jrmkillboardfe.php:170
+msgid "Fatal Error - Cannot renew SSO ESI token"
+msgstr ""
+
+#: includes/class.jrmkillboardfe.php:220
+msgid "Fetching kill started %s"
+msgstr ""
+
+#: includes/class.jrmkillboardfe.php:235
+msgid "Fetching kills, Completed"
+msgstr ""
+
+#: includes/class.jrmkillboardfe.php:294
+msgid "Fatal Error:: cURL Error "
+msgstr ""
+
+#: jrmkb_killboard.php:76
+msgid "Main"
+msgstr ""
+
+#: jrmkb_killboard.php:85
+msgid "JRM Killboard Fatal Error :: Php Curl module required"
+msgstr ""
+
+#: jrmkb_killboard.php:90
+msgid "JRM Killboard Fatal Error :: Php option allow_url_fopen not active"
+msgstr ""
+
+#: jrmkb_killboard.php:96
+msgid "JRM Killboard Fatal Error :: missing required files"
+msgstr ""
+
+#: jrmkb_killboard.php:287
+#: jrmkb_killboard.php:593
+#: public/jrmkillboard_public.php:51
+msgid "Price synced %s"
+msgstr ""
+
+#: jrmkb_killboard.php:444
+msgid "Invalid request"
+msgstr ""
+
+#: jrmkb_killboard.php:522
+#: public/partials/frontend.php:55
+msgid "Kill worth"
+msgstr ""
+
+#: jrmkb_killboard.php:596
+#: public/jrmkillboard_public.php:54
+msgid "Permission error file/directory"
+msgstr ""
+
+#: jrmkb_killboard.php:625
+msgid "Killboard"
+msgstr ""
+
+#: public/jrmkillboard_public.php:15
+msgid "Plugin error: JRM Killboard"
+msgstr ""
+
+#: public/partials/frontend.php:11
+#: public/partials/frontend.php:81
+msgid "First"
+msgstr ""
+
+#: public/partials/frontend.php:15
+#: public/partials/frontend.php:85
+msgid "Last"
+msgstr ""
+
+#: public/partials/frontend.php:45
+msgid "Calculating"
+msgstr ""
+
+#: public/partials/frontend.php:77
+msgid "Date are synced on the Eve Online time"
+msgstr ""
