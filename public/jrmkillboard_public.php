@@ -3,7 +3,7 @@
  * Template Name: JRM Killboard Frontend Page
  * @package    jrm_killboard
  * @author     jrmarco <developer@bigm.it>
- * @license    http://opensource.org/licenses/MIT
+ * @license    https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#content
  * @link       https://bigm.it
  */
 
@@ -51,7 +51,10 @@ if(!file_exists($pluginDir . 'class.jrmkillboard.php') || !file_exists($pluginDi
                 update_option('jrm_killboard_price_log',sprintf(__('Price synced %s','jrm_killboard'),'<br>('.date('Y-m-d H:i:s',$time).')'));
                 delete_option('jrm_killboard_price_error');
             } else {
-                update_option('jrm_killboard_price_error',__('Permission error file/directory','jrm_killboard').' :: wp-content/uploads/jrm_killboard_data/price.json');
+                $upload = wp_upload_dir();
+                $upload_dir = $upload['basedir'];
+                $upload_dir = $upload_dir . JRMKillboardFE::DATADIR;
+                update_option('jrm_killboard_price_error',__('Permission error file/directory','jrm_killboard').' :: '.$upload_dir.'/price.json');
                 delete_option('jrm_killboard_price_log');
             }
         }

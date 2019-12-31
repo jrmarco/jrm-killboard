@@ -3,7 +3,7 @@
  * JRMKillboardFE - Frontend Helper class
  * @package    jrm_killboard
  * @author     jrmarco <developer@bigm.it>
- * @license    http://opensource.org/licenses/MIT
+ * @license    https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#content
  * @link       https://bigm.it
  */
 class JRMKillboardFE {
@@ -177,42 +177,39 @@ class JRMKillboardFE {
         $url = JRMKillboard::
                 ESIURL.'corporations/'.$corporationId.'/killmails/recent/?datasource=tranquility&token='.$accessToken;
 
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => $url,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "GET",
-          CURLOPT_HTTPHEADER => array(
-            "Accept: */*",
-            "Accept-Encoding: gzip, deflate",
-            "Cache-Control: no-cache",
-            "Connection: keep-alive",
-            "Host: esi.evetech.net",
-            "User-Agent: PHP-Curl/".curl_version()['version'],
-            "cache-control: no-cache"
-          ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
+        $headers = [
+            'Accept' => '*/*',
+            'Accept-Encoding' => 'gzip, deflate',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'Host' => 'esi.evetech.net',
+            'User-Agent' => 'PHP-Curl/'.curl_version()['version'],
+            'cache-control' => 'no-cache'
+        ];
+         
+        $args = array(
+            'body' => [],
+            'timeout' => '10',
+            'redirection' => '5',
+            'httpversion' => '1.0',
+            'blocking' => true,
+            'headers' => $headers,
+            'cookies' => []
+        );
+         
+        $response = wp_remote_get( $url, $args );
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+        $objResponse = json_decode($raw);
 
         /**
-         * Inject testing data : $response =file_get_contents(__DIR__.'/killmail_report.json');
+         * Inject testing data : 
+         * $responseCode = 200;
+         * $objResponse = json_decode(file_get_contents(__DIR__.'/killmail_report.json'));
          */
 
-        if ($err) {
-            JRMKillboard::appendLog('<span style="color:red;">'.$err.'</span>');
-            update_option('jrm_killboard_killmail_error',"cURL Error: " . $err);
-        } else {
-            $date = date('Y-m-d H:i:s');
-            $objResponse = json_decode($response);
+        $date = date('Y-m-d H:i:s');
+        if($responseCode == 200 && $raw) {
             if(!isset($objResponse->error)) {
                 $killmails = $objResponse;
                 update_option('jrm_killboard_fetch_start',time());
@@ -238,6 +235,9 @@ class JRMKillboardFE {
                 JRMKillboard::appendLog('<span style="color:red;">'.$objResponse->error.'</span>');
                 update_option('jrm_killboard_killmail_error',$objResponse->error."<br>({$date})");
             }
+        } else {
+            JRMKillboard::appendLog('<span style="color:red;">'.$objResponse->error.'</span>');
+            update_option('jrm_killboard_killmail_error',$objResponse->error."<br>({$date})");
         }
     }
 
@@ -250,64 +250,60 @@ class JRMKillboardFE {
         $clientSecret = get_option('jrm_killboard_esi_client_secret');
         $token = get_option('jrm_killboard_esi_refresh_token');
 
-        $curl = curl_init();
-
-        $post = [
-            'grant_type' => 'refresh_token',
-            'refresh_token' => $token,
-            'scope' => 'esi-killmails.read_corporation_killmails.v1'
-        ];
-
         /**
          * SSO Refresh token Flow - References
          * @link https://github.com/esi/esi-docs/blob/master/docs/sso/refreshing_access_tokens.md
          */
 
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://login.eveonline.com/v2/oauth/token",
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "POST",
-          CURLOPT_POSTFIELDS => http_build_query($post),
-          CURLOPT_HTTPHEADER => [
-            "Accept: */*",
-            "Accept-Encoding: gzip, deflate",
-            "Authorization: Basic ".base64_encode($clientId.':'.$clientSecret),
-            "Cache-Control: no-cache",
-            "Connection: keep-alive",
-            "Content-Type: application/x-www-form-urlencoded",
-            "Host: login.eveonline.com",
-            "User-Agent: PHP-Curl/".curl_version()['version'],
-          ]
-        ));
+        $body = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $token,
+            'scope' => 'esi-killmails.read_corporation_killmails.v1'
+        ];
 
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
+        $headers = [
+            'Accept' => '*/*',
+            'Accept-Encoding' => 'gzip, deflate',
+            'Authorization' => 'Basic '.base64_encode($clientId.':'.$clientSecret),
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Host' => 'login.eveonline.com',
+            'User-Agent' => 'PHP-Curl/'.curl_version()['version'],
+        ];
+         
+        $args = array(
+            'body' => $body,
+            'timeout' => '10',
+            'redirection' => '5',
+            'httpversion' => '1.0',
+            'blocking' => true,
+            'headers' => $headers,
+            'cookies' => []
+        );
+         
+        $response = wp_remote_post( JRMKillboard::ESIOAUTH, $args );
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+        $esiResponse = json_decode($raw);
 
-        if ($err) {
-            JRMKillboard::appendLog('<span style="color:red;"> SSO ESI Renew token '.$err.'</span>');
-            update_option('jrm_killboard_killmail_error',__('Fatal Error:: cURL Error '.$err,'jrm_killboard'));
-        } else {
-            if($response) {
-                $esiResponse = json_decode($response);
-                if(isset($esiResponse->access_token) && isset($esiResponse->refresh_token)) {
-                    // Update options reference
-                    update_option('jrm_killboard_esi_expires_in', time()+intval($esiResponse->expires_in));
-                    update_option('jrm_killboard_esi_access_token', $esiResponse->access_token);
-                    update_option('jrm_killboard_esi_refresh_token', $esiResponse->refresh_token);
+        if($responseCode == 200 && $esiResponse) {
+            if(isset($esiResponse->access_token) && isset($esiResponse->refresh_token)) {
+                // Update options reference
+                update_option('jrm_killboard_esi_expires_in', time()+intval($esiResponse->expires_in));
+                update_option('jrm_killboard_esi_access_token', $esiResponse->access_token);
+                update_option('jrm_killboard_esi_refresh_token', $esiResponse->refresh_token);
+                sleep(10);
 
-                    return true;
-                } elseif(isset($esiResponse->error)) {
-                    JRMKillboard::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
-                }
+                return true;
+            } elseif(isset($esiResponse->error)) {
+                JRMKillboard::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
             }
-
-            return false;
+        } else {
+            JRMKillboard::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
         }
+
+        return false;
     }
 
 } 

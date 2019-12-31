@@ -3,8 +3,8 @@
  * Version: 1.0
  * Author: jrmarco
  * Author URI: https://bigm.it
- * License: MIT License
- * License URI: http://opensource.org/licenses/MIT
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#content
  */
 (function($) {
     $('.jrm_killboard_pager').on('click',function(event) {

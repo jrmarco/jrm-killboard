@@ -5,8 +5,8 @@ Description: Killboard for Eve Online Killmails - Plugin allows to store and dis
 Version: 1.0
 Author: jrmarco
 Author URI: https://bigm.it
-License: MIT License
-License URI: http://opensource.org/licenses/MIT
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#content
 Text Domain: jrm_killboard
 Domain Path: /languages
 */
@@ -14,15 +14,14 @@ Domain Path: /languages
 defined( 'ABSPATH' ) or die( 'Fly safe Capsuler!' );
 
 define( 'JRM_KILLBOARD_VERSION', '1.0' );
-define( 'JRM_KILLBOARD_PLUGIN_DIR', __DIR__.'/' );
 
 $dummyDescription = __('Killboard for Eve Online Killmails - Plugin allows to store and display your corporation kills using the Killmail system. They can be synched manually or automatically via the ESI API ( please read the instruction to use the ESI API ). Lots of customization allows to display your killboard in the way you like it. Developed by jrmarco ( Pillar Omaristos ). Fly safe capsuler!');
 
 // Include required JRM classes
 if(is_admin()) {
-    include JRM_KILLBOARD_PLUGIN_DIR.'includes/class.jrmkillboard.php';
+    include plugin_dir_path(__FILE__).'includes/class.jrmkillboard.php';
 }
-include JRM_KILLBOARD_PLUGIN_DIR.'includes/class.jrmkillboardfe.php';
+include plugin_dir_path(__FILE__).'includes/class.jrmkillboardfe.php';
 
 // Load translations
 load_plugin_textdomain( 'jrm_killboard', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
@@ -91,8 +90,8 @@ function jrm_killboard_verify_modules_and_files() {
         wp_die();      
     }
 
-    if(!file_exists(JRM_KILLBOARD_PLUGIN_DIR.'includes/class.jrmkillboardfe.php') || 
-        !file_exists(JRM_KILLBOARD_PLUGIN_DIR.'includes/class.jrmkillboard.php')) {
+    if(!file_exists(plugin_dir_path(__FILE__).'includes/class.jrmkillboardfe.php') || 
+        !file_exists(plugin_dir_path(__FILE__).'includes/class.jrmkillboard.php')) {
         echo __('JRM Killboard Fatal Error :: missing required files','jrm_killboard');
         wp_die();   
     }
@@ -146,7 +145,7 @@ function jrm_killboard_print_admin_page() {
     $pendingItems = $app->getItemWithoutPrice();
     $stats = $app->getStats();
 
-    include JRM_KILLBOARD_PLUGIN_DIR.'/admin/partials/main_panel.php';
+    include plugin_dir_path(__FILE__).'admin/partials/main_panel.php';
 }
 
 // Init Admin settings page data & print it
@@ -234,7 +233,7 @@ function jrm_killboard_print_settings_page() {
         $externalCronLink .= $paramLinker.'secret='.urlencode($cronjobSecret);
     }
 
-    include JRM_KILLBOARD_PLUGIN_DIR.'/admin/partials/main_settings.php';
+    include plugin_dir_path(__FILE__).'admin/partials/main_settings.php';
 }
 
 // Delete kill from the killboard
@@ -384,7 +383,7 @@ function jrm_killboard_do_upload_killmail() {
     global $wpdb;
 
     $nonce = sanitize_text_field($_POST['check']);
-    $url = $_POST['link_kill'];
+    $url = esc_url($_POST['link_kill']);
 
     if ( !wp_verify_nonce(  $nonce, 'jrm_killboard_op_nonce' ) || empty($url) ) {
         echo json_encode(['status' => false, 'error' => 'Invalid request']);
@@ -518,14 +517,14 @@ function jrm_killboard_get_table_data() {
             $tableData .= '<tr style="background-color:'.$bgColor.'; color:'.$textColor.';">';
             if(in_array('target', $activeCols)) {
                 $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px;" align="center">'.
-                    '<img src="https://images.evetech.net/types/'.$kill->shipId.'/render?size='.$imageSize.'"></td>'.
+                    '<img src="'.JRMKillboard::ESIIMAGEURL.'types/'.$kill->shipId.'/render?size='.$imageSize.'"></td>'.
                     '<td style="border-left: 0px;"><b>'.$kill->shipName.'</b><br>'.__('Kill worth','jrm_killboard').'&nbsp;'.$worth.'&nbsp;ISK</td>';
             }
             if(in_array('ship', $activeCols)) {
                 $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px;" align="center">'.
-                    '<img src="https://images.evetech.net/alliances/'.$kill->allid.'/logo?size='.$imageSize.'">'.
-                    '<img src="https://images.evetech.net/corporations/'.$kill->corpid.'/logo?size='.$imageSize.'">'.
-                    '<img src="https://images.evetech.net/characters/'.$kill->victimId.'/portrait?size='.$imageSize.'">'.
+                    '<img src="'.JRMKillboard::ESIIMAGEURL.'alliances/'.$kill->allid.'/logo?size='.$imageSize.'">'.
+                    '<img src="'.JRMKillboard::ESIIMAGEURL.'corporations/'.$kill->corpid.'/logo?size='.$imageSize.'">'.
+                    '<img src="'.JRMKillboard::ESIIMAGEURL.'characters/'.$kill->victimId.'/portrait?size='.$imageSize.'">'.
                     '</td><td style="border-left: 0px;">'.__('Corporation','jrm_killboard').':&nbsp;'.$kill->corpname.'<br>'.__('Victim','jrm_killboard').':&nbsp;<b>'.$kill->victim.'</b></td>';
             }
             if(in_array('attackers', $activeCols)) {
@@ -576,7 +575,7 @@ function jrm_killboard_do_clear_log() {
 function jrm_killboard_perform_cron() {
     global $wpdb;
 
-    include __DIR__.'/includes/class.jrmkillboard.php';
+    include plugin_dir_path(__FILE__).'includes/class.jrmkillboard.php';
 
     JRMKillboard::appendLog('WP-Cron started');
     $esiStatus = (get_option('jrm_killboard_esi_access_token') && get_option('jrm_killboard_esi_refresh_token'));
@@ -593,8 +592,11 @@ function jrm_killboard_perform_cron() {
         update_option('jrm_killboard_price_log',sprintf(__('Price synced %s','jrm_killboard'),'<br>('.date('Y-m-d H:i:s',$time).')'));
         delete_option('jrm_killboard_price_error');
     } else {
+        $upload = wp_upload_dir();
+        $upload_dir = $upload['basedir'];
+        $upload_dir = $upload_dir . JRMKillboardFE::DATADIR;
         update_option('jrm_killboard_price_error',__('Permission error file/directory','jrm_killboard').
-                      ' :: wp-content/uploads/jrm_killboard_data/price.json');
+                      ' :: '.$upload_dir.'/price.json');
         delete_option('jrm_killboard_price_log');
     }
 

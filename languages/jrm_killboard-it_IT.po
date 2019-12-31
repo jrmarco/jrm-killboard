@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2019-12-24T13:58:10+00:00\n"
-"PO-Revision-Date: 2019-12-24 15:29+0100\n"
+"PO-Revision-Date: 2019-12-27 18:40+0100\n"
 "X-Generator: Poedit 2.2.4\n"
 "X-Domain: jrm_killboard\n"
 "Last-Translator: \n"
@@ -455,8 +455,8 @@ msgid "This Killmail does not exists"
 msgstr "Questa Killmail non esiste"
 
 #: includes/class.jrmkillboard.php:449
-msgid "This Killmail does not belong to your corporation"
-msgstr "Questa Killmail non appartiene alla tua corporazione"
+msgid "Killmail does not belong to your corporation"
+msgstr "La Killmail non appartiene alla tua corporazione"
 
 #: includes/class.jrmkillboard.php:455
 msgid "Something went wrong"
@@ -484,7 +484,7 @@ msgstr "Recupero uccisioni iniziato %s"
 
 #: includes/class.jrmkillboardfe.php:235
 msgid "Fetching kills, Completed"
-msgstr "Recupero uccizioni, Completato"
+msgstr "Recupero uccisioni, Completato"
 
 #: includes/class.jrmkillboardfe.php:294
 msgid "Fatal Error:: cURL Error "

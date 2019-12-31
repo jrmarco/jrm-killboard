@@ -51,11 +51,11 @@
                     ?>
                     <tr style="background-color:<?php echo $bgColor ?>; color:<?php echo $textColor ?>;">
                         <?php if(in_array('target', $activeCols)) : ?>
-                        <td style="padding: 10px;margin:0px; border-right: 0px;" align="center"><img src="https://images.evetech.net/types/<?php echo $r->shipId ?>/render?size=<?php echo $imageSize ?>"></td>
+                        <td style="padding: 10px;margin:0px; border-right: 0px;" align="center"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>types/<?php echo $r->shipId ?>/render?size=<?php echo $imageSize ?>"></td>
                         <td style="border-left: 0px;"><b><?php echo $r->shipName ?></b><br><?php _e('Kill worth','jrm_killboard') ?>&nbsp;<?php echo $worth ?>&nbsp;ISK</td>
                         <?php endif; ?>
                         <?php if(in_array('ship', $activeCols)) : ?>
-                        <td style="padding: 10px;margin:0px; border-right: 0px;" align="center"><img src="https://images.evetech.net/alliances/<?php echo $r->allid ?>/logo?size=<?php echo $imageSize ?>"><img src="https://images.evetech.net/corporations/<?php echo $r->corpid ?>/logo?size=<?php echo $imageSize ?>"><img src="https://images.evetech.net/characters/<?php echo $r->victimId ?>/portrait?size=<?php echo $imageSize ?>"></td>
+                        <td style="padding: 10px;margin:0px; border-right: 0px;" align="center"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>alliances/<?php echo $r->allid ?>/logo?size=<?php echo $imageSize ?>"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>corporations/<?php echo $r->corpid ?>/logo?size=<?php echo $imageSize ?>"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>characters/<?php echo $r->victimId ?>/portrait?size=<?php echo $imageSize ?>"></td>
                         <td style="border-left: 0px;"><?php _e('Corporation','jrm_killboard') ?>:&nbsp;<?php echo $r->corpname ?><br><?php _e('Victim','jrm_killboard') ?>:&nbsp;<b><?php echo $r->victim ?></b></td>
                         <?php endif; ?>
                         <?php if(in_array('attackers', $activeCols)) : ?>

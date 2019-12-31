@@ -4,7 +4,7 @@
  * JRMKillboard - Helper class - Act also as interface between plugin and ESI
  * @package    jrm_killboard
  * @author     jrmarco <developer@bigm.it>
- * @license    http://opensource.org/licenses/MIT
+ * @license    https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#content
  * @link       https://bigm.it
  */
 class JRMKillboard {
@@ -14,6 +14,8 @@ class JRMKillboard {
     const TABITEM        = 'jrm_item';
     const TABQUEUE       = 'jrm_queue';
     const ESIURL         = 'https://esi.evetech.net/latest/';
+    const ESIIMAGEURL    = 'https://images.evetech.net/';
+    const ESIOAUTH       = 'https://login.eveonline.com/v2/oauth/token';
     const DATADIR        = '/jrm_killboard_data';
 
     private $db;
@@ -260,7 +262,7 @@ class JRMKillboard {
             if($blnVictim && $blnAttackers && $blnKill) {
                 $processData->status = true;
             } else {
-                JRMKillboard::appendLog('<span style="color:red;">Record Kill - Something went wrong. ID : '.$id.'</span>');
+                self::appendLog('<span style="color:red;">Record Kill - Something went wrong. ID : '.$id.'</span>');
                 $processData->error = __('Error:: Something went wrong and I was not able to store Killmail data',
                                          'jrm_killboard');
                 $processData->code = 500;
@@ -327,15 +329,18 @@ class JRMKillboard {
     public static function fetchPriceSet() {
         $status = false;
         // Fetch price file
-        $raw = self::queryEndpoint(self::ESIURL.'markets/prices/?datasource=tranquility');
-        if($raw) {
+        $response = wp_remote_get(self::ESIURL.'markets/prices/?datasource=tranquility');
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+
+        if($responseCode == 200 && $raw) {
             $json = json_decode($raw);
             // Store price file
             $upload     = wp_upload_dir();
             $upload_dir = $upload['basedir'];
             $upload_dir = $upload_dir . self::DATADIR;
             if(!file_exists($upload_dir)) {
-                $this->createUploadDir();
+                self::createUploadDir();
             }
             // Clear previous data
             file_put_contents($upload_dir.'/price.json','');
@@ -422,18 +427,23 @@ class JRMKillboard {
      */
     private function fetchKillmail($url) {
         $objResult = new stdClass();
+        $objResult->status = false;
+        $objResult->code   = 500;
 
         // Check url format
         if(preg_match("/^https\:\/\/esi\.evetech\.net\/latest\/killmails\/[0-9]+\/[A-Za-z0-9]+/", $url)) {
-            $raw = self::queryEndpoint($url);
+            $response = wp_remote_get($url);
+            $responseCode = wp_remote_retrieve_response_code($response);
+            $raw = wp_remote_retrieve_body($response);
+
             $urlAndParams = explode('?', $url);
             $hashPart = preg_replace("/^https\:\/\/esi\.evetech\.net\/latest\/killmails\/[0-9]+\//",'',$urlAndParams[0]);
-            if($raw) {
+            if($responseCode == 200 && $raw) {
                 $json = json_decode($raw);
 
                 // Check for errors
                 if(isset($json->error) || is_null($json)) {
-                    JRMKillboard::appendLog('<span style="color:red;">Fetch Killmail - '.$json->error.'</span>');
+                    self::appendLog('<span style="color:red;">Fetch Killmail - '.$json->error.'</span>');
                     $objResult->status = false;
                     $objResult->error  = __('This Killmail does not exists','jrm_killboard');
                     $objResult->code   = 404;
@@ -444,22 +454,18 @@ class JRMKillboard {
                         $objResult->response = $json;
                         $objResult->hashmail = preg_replace("/[^A-Za-z0-9]+/",'',$hashPart);
                     } else {
-                        JRMKillboard::appendLog('<span style="color:red;">Fetch Killmail - This Killmail does not belong to your corporation</span>');
+                        self::appendLog('<span style="color:red;">Killmail does not belong to your corporation : '.$url.'</span>');
                         $objResult->status = false;
-                        $objResult->error  = __('This Killmail does not belong to your corporation','jrm_killboard');
+                        $objResult->error  = __("Killmail does not belong to your corporation",'jrm_killboard');
                         $objResult->code   = 501;
                     }
                 }
             } else {
-                $objResult->status = false;
                 $objResult->error  = __('Something went wrong','jrm_killboard');
-                $objResult->code   = 500;    
             }
         } else {
-            JRMKillboard::appendLog('<span style="color:red;"> Fetch Killmail - Invalid killmail url</span>');
-            $objResult->status = false;
+            self::appendLog('<span style="color:red;"> Fetch Killmail - Invalid killmail url</span>');
             $objResult->error  = __('Invalid Killmail link','jrm_killboard');
-            $objResult->code   = 500;
         }
 
         return $objResult;
@@ -473,8 +479,10 @@ class JRMKillboard {
     public function fetchItem($id) {
         if(empty($id)) { return false; }
         $url  = self::ESIURL."universe/types/{$id}/?datasource=tranquility&language=en-us";
-        $raw  = self::queryEndpoint($url);
-        if ($raw) {
+        $response = wp_remote_get($url);
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+        if($responseCode == 200 && $raw) {
             $json = json_decode($raw);
             if(isset($json->error)) {
                 $json = false;
@@ -494,8 +502,10 @@ class JRMKillboard {
     private function fetchCapsuler($id) {
         if(empty($id)) { return false; }
         $url  = self::ESIURL."characters/{$id}/?datasource=tranquility";
-        $raw  = self::queryEndpoint($url);
-        if($raw) {
+        $response = wp_remote_get($url);
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+        if($responseCode == 200 && $raw) {
             $json = json_decode($raw);
             if(isset($json->error)) {
                 $json = false;
@@ -515,8 +525,10 @@ class JRMKillboard {
     private function fetchCorporation($id) {
         if(empty($id)) { return false; }
         $url  = self::ESIURL."corporations/{$id}/?datasource=tranquility";
-        $raw  = self::queryEndpoint($url);
-        if($raw) {
+        $response = wp_remote_get($url);
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+        if($responseCode == 200 && $raw) {
             $json = json_decode($raw);
             if(isset($json->error)) {
                 $json = false;
@@ -536,8 +548,10 @@ class JRMKillboard {
     public function fetchSystem($id) {
         if(empty($id)) { return false; }
         $url  = self::ESIURL."universe/systems/{$id}/?datasource=tranquility&language=en-us";
-        $raw  = self::queryEndpoint($url);
-        if($raw) {
+        $response = wp_remote_get($url);
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+        if($responseCode == 200 && $raw) {
             $json = json_decode($raw);
             if(isset($json->error)) {
                 $json = false;
@@ -854,69 +868,64 @@ class JRMKillboard {
      * @return Bool Processing result
      */
     public static function performSSOAuthentication($clientId,$clientSecret,$code) {
-        $curl = curl_init();
-
         /**
          * SSO Flow - References
          * @link https://github.com/esi/esi-docs/blob/master/docs/sso/web_based_sso_flow.md
          */
 
-        $post = [
+        self::appendLog('Start SSO ESI Authentication');
+
+        $body = [
             'grant_type' => 'authorization_code',
             'code' => $code
         ];
+        $headers = [
+            'Accept' => '*/*',
+            'Accept-Encoding' => 'gzip, deflate',
+            'Authorization' => 'Basic '.base64_encode($clientId.':'.$clientSecret),
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Host' => 'login.eveonline.com',
+            'User-Agent' => 'PHP-Curl/'.curl_version()['version'],
+        ];
+         
+        $args = array(
+            'body' => $body,
+            'timeout' => '10',
+            'redirection' => '5',
+            'httpversion' => '1.0',
+            'blocking' => true,
+            'headers' => $headers,
+            'cookies' => []
+        );
+         
+        $response = wp_remote_post( self::ESIOAUTH, $args );
+        $responseCode = wp_remote_retrieve_response_code($response);
+        $raw = wp_remote_retrieve_body($response);
+        $esiResponse = json_decode($raw);
 
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://login.eveonline.com/v2/oauth/token",
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "POST",
-          CURLOPT_POSTFIELDS => http_build_query($post),
-          CURLOPT_HTTPHEADER => [
-            "Accept: */*",
-            "Accept-Encoding: gzip, deflate",
-            "Authorization: Basic ".base64_encode($clientId.':'.$clientSecret),
-            "Cache-Control: no-cache",
-            "Connection: keep-alive",
-            "Content-Type: application/x-www-form-urlencoded",
-            "Host: login.eveonline.com",
-            "User-Agent: PHP-Curl/".curl_version()['version'],
-          ]
-        ));
+        if($responseCode == 200 && $raw) {
+            // Everything ok : we store access/refresh token for future calls
+            if(isset($esiResponse->access_token) && isset($esiResponse->refresh_token)) {
+                self::appendLog('<span style="color:green;">Account Synced with ESI API</span>');
+                update_option('jrm_killboard_esi_expires_in', time()+intval($esiResponse->expires_in));
+                update_option('jrm_killboard_esi_access_token', $esiResponse->access_token);
+                update_option('jrm_killboard_esi_refresh_token', $esiResponse->refresh_token);
 
-        JRMKillboard::appendLog('Start SSO ESI Authentication');
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            JRMKillboard::appendLog('<span style="color:red;">'.$err.'</span>');
-        } else {
-            if($response) {
-                $esiResponse = json_decode($response);
-                // Everything ok : we store access/refresh token for future calls
-                if(isset($esiResponse->access_token) && isset($esiResponse->refresh_token)) {
-                    JRMKillboard::appendLog('Account Synced with ESI API');
-                    update_option('jrm_killboard_esi_expires_in', time()+intval($esiResponse->expires_in));
-                    update_option('jrm_killboard_esi_access_token', $esiResponse->access_token);
-                    update_option('jrm_killboard_esi_refresh_token', $esiResponse->refresh_token);
-
-                    return true;
-                } elseif(isset($esiResponse->error)) {
-                    JRMKillboard::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
-                }
+                return true;
+            } elseif(isset($esiResponse->error)) {
+                self::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
             }
-
-            return false;
+        } else {
+            self::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
         }
+
+        return false;
     }
 
     public function clearQueue() {
-        JRMKillboard::appendLog('Clear killmails queue');
+        self::appendLog('Clear killmails queue');
         $table = $this->prefix.self::TABQUEUE;
         $clear = "DELETE FROM {$table} WHERE `status` >= 2";
         $this->db->query($clear);
@@ -927,7 +936,7 @@ class JRMKillboard {
      * @return Bool Processing result
      */
     public function processQueue() {
-        JRMKillboard::appendLog('Process killmails queue');
+        self::appendLog('Process killmails queue');
         $table = $this->prefix.self::TABQUEUE;
         $query = "SELECT * FROM {$table} WHERE `status` < 2";
         $rows = $this->db->get_results($query);
@@ -945,12 +954,12 @@ class JRMKillboard {
                 $status = isset($response->code) ? $response->code : 2;
                 $this->db->update( $table, ['status' => $status],['killmailId' => $id],['%d'],['%d'] );
             }
-            JRMKillboard::appendLog("Found {$count} new killmails");
+            self::appendLog("Found {$count} new killmails");
         }
-        JRMKillboard::appendLog('Process killmails complete');
-        JRMKillboard::appendLog('Starting worth value');
+        self::appendLog('Process killmails complete');
+        self::appendLog('Starting worth value');
         $this->calculateKillsWorth();
-        JRMKillboard::appendLog('Worth value ended');
+        self::appendLog('Worth value ended');
 
         return true;
     }
@@ -962,10 +971,10 @@ class JRMKillboard {
     public function calculateKillsWorth() {
         $upload     = wp_upload_dir();
         $upload_dir = $upload['basedir'];
-        $upload_dir = $upload_dir . JRMKillboard::DATADIR;
+        $upload_dir = $upload_dir . self::DATADIR;
         // Check if price JSON file has been downloaded
         if(file_exists($upload_dir.'/price.json')) {
-            $table  = JRMKillboard::TABKILLBOARD;
+            $table  = self::TABKILLBOARD;
             // Select killmail with worth price empty
             $query  = "SELECT killmailId,items FROM {$this->db->prefix}{$table} WHERE `worth` IS null;";
             $rows   = $this->db->get_results($query);
@@ -1023,7 +1032,7 @@ class JRMKillboard {
 
         foreach ($items as $id => $quantity) {
             // Fetch item price
-            $itemPrice  = JRMKillboard::searchPrice($id);
+            $itemPrice  = self::searchPrice($id);
             if($itemPrice==-1) {
                 $blnMissingPrice = true;
                 $itemPrice = null;
@@ -1037,56 +1046,15 @@ class JRMKillboard {
                     $itemPrice = $exists->price;
                     $blnMissingPrice = false;
                 }
-                $table   = $this->db->prefix.JRMKillboard::TABITEM;
+                $table   = $this->db->prefix.self::TABITEM;
                 $this->db->update( $table, ['price' => $itemPrice],['id' => $id],['%d'],['%d'] );
             }
             $total += $itemPrice*$quantity;
         }
 
         if($blnMissingPrice==false) {
-            $table  = $this->db->prefix.JRMKillboard::TABKILLBOARD;
+            $table  = $this->db->prefix.self::TABKILLBOARD;
             $this->db->update( $table, ['worth' => $total],['killmailId' => $killId],['%d'],['%d'] );
-        }
-    }
-
-    /**
-     * Perform curl GET request on the given endpoint
-     *
-     * @param string $url ESI API endpoing
-     * @return string curl response
-     */
-    public static function queryEndpoint($url) {
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-          CURLOPT_URL => $url,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 30,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "GET",
-          CURLOPT_HTTPHEADER => array(
-            "Accept: */*",
-            "Accept-Encoding: gzip, deflate",
-            "Cache-Control: no-cache",
-            "Connection: keep-alive",
-            "Host: esi.evetech.net",
-            "User-Agent: PHP-Curl/".curl_version()['version'],
-            "cache-control: no-cache"
-          ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-          JRMKillboard::appendLog('<span style="color:red;"> cUrl GET '.$err.'</span>');
-          return false;
-        } else {
-          return $response;
         }
     }
 
@@ -1096,7 +1064,7 @@ class JRMKillboard {
      */
     public static function clearLog() {
         // Update log
-        $logFile = __DIR__.'/../admin/processing.log';
+        $logFile = plugin_dir_path(__FILE__).'../admin/processing.log';
         $date = date('Y-m-d H:i:s');
         $log = $date." Log created\n";
         file_put_contents($logFile,$log);    
@@ -1109,7 +1077,7 @@ class JRMKillboard {
      */
     public static function appendLog($logString) {
         // Update log
-        $logFile = __DIR__.'/../admin/processing.log';
+        $logFile = plugin_dir_path(__FILE__).'../admin/processing.log';
 
         $date = date('Y-m-d H:i:s');
         $log = file_get_contents($logFile);
@@ -1124,7 +1092,7 @@ class JRMKillboard {
     public static function createUploadDir() {
         $upload     = wp_upload_dir();
         $upload_dir = $upload['basedir'];
-        $upload_dir = $upload_dir . JRMKillboard::DATADIR;
+        $upload_dir = $upload_dir . self::DATADIR;
         if (! is_dir($upload_dir)) {
            mkdir( $upload_dir, 0700 );
         }

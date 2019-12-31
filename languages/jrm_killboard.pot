@@ -462,7 +462,7 @@ msgid "This Killmail does not exists"
 msgstr ""
 
 #: includes/class.jrmkillboard.php:449
-msgid "This Killmail does not belong to your corporation"
+msgid "Killmail does not belong to your corporation"
 msgstr ""
 
 #: includes/class.jrmkillboard.php:455

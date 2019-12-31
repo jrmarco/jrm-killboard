@@ -222,22 +222,20 @@
             <?php if($esiStatus) : ?>
             <h6 style="margin-top: 10px;"><?php _e('Processing Logs','jrm_killboard') ?></h6>
             <?php if(!empty($killmailError) || !empty($killmailLog) || $processingFailed) : ?>
-            <div class="alert <?php echo (!empty($killmailError) || $processingFailed) ? 'alert-danger' : 'alert-success' ?>"><p><?php _e('Killmail','jrm_killboard') ?> <br> <?php echo $processingFailed ? __('Processed failed. Please restart it') : ((!empty($killmailError)) ? $killmailError : $killmailLog) ?>
-            </p></div>
+            <div class="alert <?php echo (!empty($killmailError) || $processingFailed) ? 'alert-danger' : ($processTime && !$processingFailed ? 'alert-warning' : 'alert-success') ?>"><?php echo $processingFailed ? __('Processed failed. Please restart it') : ((!empty($killmailError)) ? $killmailError : $killmailLog) ?></div>
             <?php endif; ?> 
             <?php if(!empty($priceError) || !empty($priceLog)) : ?>
-            <div class="alert <?php echo (!empty($priceError)) ? 'alert-danger' : 'alert-success' ?>"><p><?php echo (!empty($priceError)) ? $priceError : $priceLog ?>
-            </p></div>
+            <div class="alert <?php echo (!empty($priceError)) ? 'alert-danger' : 'alert-success' ?>"><?php echo (!empty($priceError)) ? $priceError : $priceLog ?></div>
             <?php endif; ?> 
             <?php endif; ?> 
         </div>
     <span id='message_container' 
-        data-error-text_corporate_kill="<?php _e('Suffered kill text color missing') ?>"
-        data-error-bg_corporate_kill="<?php _e('Suffered kill background color missing') ?>"
-        data-error-text_kill="<?php _e('Kill text color missing') ?>"
-        data-error-bg_kill="<?php _e('Kill background color missing') ?>"
-        data-error-corporation_id="<?php _e('Corporation ID missing') ?>"
-        data-error-text_corporate_kill="<?php _e('Suffered kill text color missing') ?>">
+        data-error-text_corporate_kill="<?php _e('Suffered kill text color missing','jrm_killboard') ?>"
+        data-error-bg_corporate_kill="<?php _e('Suffered kill background color missing','jrm_killboard') ?>"
+        data-error-text_kill="<?php _e('Kill text color missing','jrm_killboard') ?>"
+        data-error-bg_kill="<?php _e('Kill background color missing','jrm_killboard') ?>"
+        data-error-corporation_id="<?php _e('Corporation ID missing','jrm_killboard') ?>"
+        data-error-text_corporate_kill="<?php _e('Suffered kill text color missing','jrm_killboard') ?>">
     </span>
     <?php include 'copyright_footer.php' ?>
 </div>
@@ -245,14 +243,14 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><?php _e('Logs') ?></h5>
+        <h5 class="modal-title"><?php _e('Logs','jrm_killboard') ?></h5>
         <button type="button" class="close" onclick="hideLogs()">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div id="modal_content" class="modal-body" style="padding: 10px; overflow-y: auto; max-height: 500px;"></div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-sm" onclick="hideLogs()">Close</button>
+        <button type="button" class="btn btn-sm" onclick="hideLogs()"><?php _e('Close') ?></button>
       </div>    
   </div>
 </div>
