@@ -15,7 +15,13 @@ class JRMKillboard {
     const TABQUEUE       = 'jrm_queue';
     const ESIURL         = 'https://esi.evetech.net/latest/';
     const ESIIMAGEURL    = 'https://images.evetech.net/';
-    const ESIOAUTH       = 'https://login.eveonline.com/v2/oauth/token';
+
+    const ESITOKEN       = 'https://login.eveonline.com/oauth/token';
+    const ESITOKENV2     = 'https://login.eveonline.com/v2/oauth/token';
+
+    const ESIAUTH        = 'https://login.eveonline.com/oauth/authorize/';
+    const ESIAUTHV2      = 'https://login.eveonline.com/v2/oauth/authorize/';
+
     const DATADIR        = '/jrm_killboard_data';
 
     private $db;
@@ -431,13 +437,13 @@ class JRMKillboard {
         $objResult->code   = 500;
 
         // Check url format
-        if(preg_match("/^https\:\/\/esi\.evetech\.net\/latest\/killmails\/[0-9]+\/[A-Za-z0-9]+/", $url)) {
+        if(preg_match("/^https\:\/\/esi\.evetech\.net\/(latest|v[0-9]{1})\/killmails\/[0-9]+\/[A-Za-z0-9]+/", $url)) {
             $response = wp_remote_get($url);
             $responseCode = wp_remote_retrieve_response_code($response);
             $raw = wp_remote_retrieve_body($response);
 
             $urlAndParams = explode('?', $url);
-            $hashPart = preg_replace("/^https\:\/\/esi\.evetech\.net\/latest\/killmails\/[0-9]+\//",'',$urlAndParams[0]);
+            $hashPart = preg_replace("/^https\:\/\/esi\.evetech\.net\/(latest|v[0-9]{1})\/killmails\/[0-9]+\//",'',$urlAndParams[0]);
             if($responseCode == 200 && $raw) {
                 $json = json_decode($raw);
 
@@ -862,12 +868,13 @@ class JRMKillboard {
 
     /**
      * Perform OAuth 2.0 authentication on ESI API
+     * @param  Integer $oauthVersion OAuth version
      * @param  Integer $clientId    Client Id
      * @param  String $clientSecret Client Secret
      * @param  String $code         Unique code request
      * @return Bool Processing result
      */
-    public static function performSSOAuthentication($clientId,$clientSecret,$code) {
+    public static function performSSOAuthentication($oauthVersion,$clientId,$clientSecret,$code) {
         /**
          * SSO Flow - References
          * @link https://github.com/esi/esi-docs/blob/master/docs/sso/web_based_sso_flow.md
@@ -879,18 +886,15 @@ class JRMKillboard {
             'grant_type' => 'authorization_code',
             'code' => $code
         ];
+
         $headers = [
-            'Accept' => '*/*',
-            'Accept-Encoding' => 'gzip, deflate',
             'Authorization' => 'Basic '.base64_encode($clientId.':'.$clientSecret),
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
             'Content-Type' => 'application/x-www-form-urlencoded',
             'Host' => 'login.eveonline.com',
-            'User-Agent' => 'PHP-Curl/'.curl_version()['version'],
         ];
          
         $args = array(
+            'method' => 'POST',
             'body' => $body,
             'timeout' => '10',
             'redirection' => '5',
@@ -899,8 +903,10 @@ class JRMKillboard {
             'headers' => $headers,
             'cookies' => []
         );
+
+        $authLink = $oauthVersion == '1' ? self::ESITOKEN : self::ESITOKENV2;
          
-        $response = wp_remote_post( self::ESIOAUTH, $args );
+        $response = wp_remote_post( $authLink, $args );
         $responseCode = wp_remote_retrieve_response_code($response);
         $raw = wp_remote_retrieve_body($response);
         $esiResponse = json_decode($raw);
@@ -918,7 +924,8 @@ class JRMKillboard {
                 self::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
             }
         } else {
-            self::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
+            $error = self::httpErrorText($responseCode,$esiResponse->error_description);
+            self::appendLog('<span style="color:red;">'.$error.'</span>');
         }
 
         return false;
@@ -1064,7 +1071,10 @@ class JRMKillboard {
      */
     public static function clearLog() {
         // Update log
-        $logFile = plugin_dir_path(__FILE__).'../admin/processing.log';
+        $upload     = wp_upload_dir();
+        $upload_dir = $upload['basedir'];
+        $upload_dir = $upload_dir . JRMKillboard::DATADIR;
+        $logFile = $upload_dir.'/processing.log';
         $date = date('Y-m-d H:i:s');
         $log = $date." Log created\n";
         file_put_contents($logFile,$log);    
@@ -1077,7 +1087,10 @@ class JRMKillboard {
      */
     public static function appendLog($logString) {
         // Update log
-        $logFile = plugin_dir_path(__FILE__).'../admin/processing.log';
+        $upload     = wp_upload_dir();
+        $upload_dir = $upload['basedir'];
+        $upload_dir = $upload_dir . JRMKillboard::DATADIR;
+        $logFile = $upload_dir.'/processing.log';
 
         $date = date('Y-m-d H:i:s');
         $log = file_get_contents($logFile);
@@ -1096,5 +1109,30 @@ class JRMKillboard {
         if (! is_dir($upload_dir)) {
            mkdir( $upload_dir, 0700 );
         }
+    }
+
+    /**
+     * Return HTTP error code descriptive string
+     *
+     * @param Integer $responseCode HTTP Error code
+     * @param Object $esiResponse ESI Api response object
+     * @return String
+     */
+    public static function httpErrorText($responseCode,$textResponse) {
+        if (empty($textResponse)) {
+            switch ($responseCode) {
+                case 400 : $textResponse = __('Error 400 : Bad Request','jrm_killboard'); break;
+                case 401 : $textResponse = __('Error 401 : Unauthorized','jrm_killboard'); break;
+                case 403 : $textResponse = __('Error 403 : Forbidden','jrm_killboard'); break;
+                case 404 : $textResponse = __('Error 404 : Not Found','jrm_killboard'); break;
+                case 408 : $textResponse = __('Error 408 : Request Timeout','jrm_killboard'); break;
+                case 500 : $textResponse = __('Error 500 : Internal Server Error','jrm_killboard'); break;
+                case 502 : $textResponse = __('Error 502 : Bad Gateway','jrm_killboard'); break;
+                case 503 : $textResponse = __('Error 503 : Service Unavailable','jrm_killboard'); break;
+                case 504 : $textResponse = __('Error 504 : Gateway Timeout','jrm_killboard'); break;
+            }
+        }
+
+        return $textResponse;
     }
 }

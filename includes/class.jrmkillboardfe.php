@@ -178,16 +178,12 @@ class JRMKillboardFE {
                 ESIURL.'corporations/'.$corporationId.'/killmails/recent/?datasource=tranquility&token='.$accessToken;
 
         $headers = [
-            'Accept' => '*/*',
-            'Accept-Encoding' => 'gzip, deflate',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
             'Host' => 'esi.evetech.net',
             'User-Agent' => 'PHP-Curl/'.curl_version()['version'],
-            'cache-control' => 'no-cache'
         ];
          
         $args = array(
+            'method' => 'POST',
             'body' => [],
             'timeout' => '10',
             'redirection' => '5',
@@ -236,7 +232,8 @@ class JRMKillboardFE {
                 update_option('jrm_killboard_killmail_error',$objResponse->error."<br>({$date})");
             }
         } else {
-            JRMKillboard::appendLog('<span style="color:red;">'.$objResponse->error.'</span>');
+            $error = JRMKillboard::httpErrorText($responseCode,$objResponse->error);
+            JRMKillboard::appendLog('<span style="color:red;">'.$error.'</span>');
             update_option('jrm_killboard_killmail_error',$objResponse->error."<br>({$date})");
         }
     }
@@ -249,6 +246,7 @@ class JRMKillboardFE {
         $clientId = get_option('jrm_killboard_esi_client_id');
         $clientSecret = get_option('jrm_killboard_esi_client_secret');
         $token = get_option('jrm_killboard_esi_refresh_token');
+        $oauthVersion = get_option('jrm_killboard_oauth_version');
 
         /**
          * SSO Refresh token Flow - References
@@ -262,17 +260,13 @@ class JRMKillboardFE {
         ];
 
         $headers = [
-            'Accept' => '*/*',
-            'Accept-Encoding' => 'gzip, deflate',
             'Authorization' => 'Basic '.base64_encode($clientId.':'.$clientSecret),
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
             'Content-Type' => 'application/x-www-form-urlencoded',
-            'Host' => 'login.eveonline.com',
-            'User-Agent' => 'PHP-Curl/'.curl_version()['version'],
+            'Host' => 'login.eveonline.com'
         ];
          
         $args = array(
+            'method' => 'POST',
             'body' => $body,
             'timeout' => '10',
             'redirection' => '5',
@@ -281,8 +275,10 @@ class JRMKillboardFE {
             'headers' => $headers,
             'cookies' => []
         );
+
+        $authLink = $oauthVersion == '1' ? JRMKillboard::ESITOKEN : JRMKillboard::ESITOKENV2;
          
-        $response = wp_remote_post( JRMKillboard::ESIOAUTH, $args );
+        $response = wp_remote_post( $authLink, $args );
         $responseCode = wp_remote_retrieve_response_code($response);
         $raw = wp_remote_retrieve_body($response);
         $esiResponse = json_decode($raw);
@@ -300,7 +296,8 @@ class JRMKillboardFE {
                 JRMKillboard::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
             }
         } else {
-            JRMKillboard::appendLog('<span style="color:red;">'.$esiResponse->error_description.'</span>');
+            $error = JRMKillboard::httpErrorText($responseCode,$esiResponse->error_description);
+            JRMKillboard::appendLog('<span style="color:red;">'.$error.'</span>');
         }
 
         return false;

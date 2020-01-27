@@ -77,6 +77,8 @@ if(!file_exists($pluginDir . 'class.jrmkillboard.php') || !file_exists($pluginDi
     $fontSize          = get_option('jrm_killboard_font_size');
     $imageSize         = get_option('jrm_killboard_image_size');
     $selectedCols      = get_option('jrm_killboard_cols');
+    $footerColor       = get_option('jrm_killboard_footer_color');
+    $footerText        = get_option('jrm_killboard_footer_text');
     $devSign           = (get_option('jrm_killboard_dev_sign') == 'show') ? true : false;
 
     $columns           = JRMKillboard::getTableColumns();

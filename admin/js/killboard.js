@@ -96,6 +96,10 @@ function saveConfig(withAuth = false) {
         if(name == 'dev_sign') {
             value = (document.getElementById("dev_sign_yes").checked) ? 'show' : 'hide';
         }
+        if(name == 'oauth' && document.getElementById("oauth_v1") != undefined) {
+            value = (document.getElementById("oauth_v1").checked) ? 1 : 2;
+        }
+
 
         data[name] = value;
     });

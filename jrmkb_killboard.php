@@ -2,7 +2,7 @@
 /*
 Plugin Name: JRM Killboard
 Description: Killboard for Eve Online Killmails - Plugin allows to store and display your corporation kills using the Killmail system. They can be synched manually or automatically via the ESI API ( please read the instruction to use the ESI API ). Lots of customization allows to display your killboard in the way you like it. Developed by jrmarco ( Pillar Omaristos ). Fly safe capsuler!
-Version: 1.0
+Version: 1.1
 Author: jrmarco
 Author URI: https://bigm.it
 License: GPLv2 or later
@@ -13,7 +13,7 @@ Domain Path: /languages
 
 defined( 'ABSPATH' ) or die( 'Fly safe Capsuler!' );
 
-define( 'JRM_KILLBOARD_VERSION', '1.0' );
+define( 'JRM_KILLBOARD_VERSION', '1.1' );
 
 $dummyDescription = __('Killboard for Eve Online Killmails - Plugin allows to store and display your corporation kills using the Killmail system. They can be synched manually or automatically via the ESI API ( please read the instruction to use the ESI API ). Lots of customization allows to display your killboard in the way you like it. Developed by jrmarco ( Pillar Omaristos ). Fly safe capsuler!');
 
@@ -51,6 +51,12 @@ if ( is_admin() ) {
     add_action( 'wp_ajax_jrm_killboard_do_remove_sso_auth', 'jrm_killboard_do_remove_sso_auth' );
     add_action( 'wp_ajax_jrm_killboard_do_get_log', 'jrm_killboard_do_get_log' );
     add_action( 'wp_ajax_jrm_killboard_do_clear_log', 'jrm_killboard_do_clear_log' );
+}
+
+// Check for required updates
+$currentPluginVersion = get_option('jrm_killboard_plugin_version');
+if ($currentPluginVersion != false && $currentPluginVersion != JRM_KILLBOARD_VERSION) {
+    jrm_killboard_process_plugin_update();
 }
 
 // WP-Cron checks
@@ -155,8 +161,10 @@ function jrm_killboard_print_settings_page() {
     jrm_killboard_verify_modules_and_files();
 
     // WP options
+    $oauth = get_option('jrm_killboard_oauth_version');
     $esiClientId = get_option('jrm_killboard_esi_client_id');
     $esiClientSecret = get_option('jrm_killboard_esi_client_secret');
+    $oauthLink = $oauth == '1' ? JRMKillboard::ESIAUTH : JRMKillboard::ESIAUTHV2 ;
     $corporationId = get_option('jrm_killboard_corporation_id');
     $cronjobEndpoint = get_option('jrm_killboard_cronjob_endpoint');
     $cronjobSecret = get_option('jrm_killboard_cronjob_secret');
@@ -172,9 +180,10 @@ function jrm_killboard_print_settings_page() {
     $killsText = get_option('jrm_killboard_kills_text');
     $deathBg = get_option('jrm_killboard_deaths_bg');
     $deathText = get_option('jrm_killboard_deaths_text');
+    $footerColor = get_option('jrm_killboard_footer_color');
+    $footerText = get_option('jrm_killboard_footer_text');
     $cols = get_option('jrm_killboard_cols');
     $lastSync = get_option('jrm_killboard_lastSync');
-    $esiStatus = (get_option('jrm_killboard_esi_access_token') && get_option('jrm_killboard_esi_refresh_token'));
     $killmailError = get_option('jrm_killboard_killmail_error');
     $killmailLog = get_option('jrm_killboard_killmail_log');
     $priceError = get_option('jrm_killboard_price_error');
@@ -185,22 +194,37 @@ function jrm_killboard_print_settings_page() {
     if($processTime) {
         $processingFailed = time()-$processTime>(1*60*60) ? true : $processingFailed;
     }
-    $logFileLink = plugins_url('/admin/processing.log');
-    $logSize = round(filesize(__DIR__.'/admin/processing.log')/1000,2);
+
+    $upload     = wp_upload_dir();
+    $upload_dir = $upload['basedir'];
+    $upload_dir = $upload_dir . JRMKillboard::DATADIR;
+    $logFileLink = $upload_dir.'/processing.log';
+    $logSize = round(filesize($logFileLink)/1000,2);
 
     $pluginPageUrl = admin_url('admin.php?page=jrmevekillboard_settings');
 
     // Callback handler from ESI authentication
-    if(isset($_COOKIE['esi-init-call'])) {
-        if(isset($_GET['code']) && isset($_GET['state']) && !empty($_GET['code']) && 
-                 !empty($_GET['state']) && $_GET['state']==$_COOKIE['esi-init-call']) {
-            $auth = JRMKillboard::performSSOAuthentication($esiClientId,$esiClientSecret,$_GET['code']);
-            if($auth) {
-                $esiStatus = true;
-            }
-            unset($_COOKIE['esi-init-call']);
+    if(isset($_GET['code']) && isset($_GET['state']) && !empty($_GET['code']) && 
+                !empty($_GET['state']) && $_GET['state']==get_option('jrm_killboard_esi_init_call') ) {
+        $oauthVersion = get_option('jrm_killboard_oauth_version');
+        $auth = JRMKillboard::performSSOAuthentication($oauthVersion,$esiClientId,$esiClientSecret,$_GET['code']);
+        if($auth) {
+            $esiStatus = true;
+        } else {
+            // Remove api auth data
+            delete_option('jrm_killboard_esi_client_id');
+            delete_option('jrm_killboard_esi_client_secret');
+            delete_option('jrm_killboard_esi_expires_in');
+            delete_option('jrm_killboard_esi_access_token');
+            delete_option('jrm_killboard_esi_refresh_token');
+            $esiClientId = '';
+            $esiClientSecret = '';
         }
     }
+
+    $esiStatus = (get_option('jrm_killboard_esi_access_token') && get_option('jrm_killboard_esi_refresh_token'));
+    $esiUniqueCode = uniqid();
+    update_option('jrm_killboard_esi_init_call',$esiUniqueCode);
 
     $app = new JRMKillboard($wpdb);
     $stats = $app->getStats();
@@ -337,6 +361,7 @@ function jrm_killboard_do_store_settings() {
             }
         }
         // Update options
+        update_option('jrm_killboard_oauth_version',sanitize_text_field($postData['oauth']));
         update_option('jrm_killboard_corporation_id',sanitize_text_field($postData['corporation_id'])); 
         update_option('jrm_killboard_cronjob_endpoint',sanitize_text_field($postData['cron_endpoint'])); 
         update_option('jrm_killboard_cronjob_secret',sanitize_text_field($postData['cron_secret'])); 
@@ -352,6 +377,8 @@ function jrm_killboard_do_store_settings() {
         update_option('jrm_killboard_kills_text',sanitize_text_field($postData['text_kill']));
         update_option('jrm_killboard_deaths_bg',sanitize_text_field($postData['bg_corporate_kill']));
         update_option('jrm_killboard_deaths_text',sanitize_text_field($postData['text_corporate_kill']));
+        update_option('jrm_killboard_footer_color',sanitize_text_field($postData['footer_color']));
+        update_option('jrm_killboard_footer_text',sanitize_text_field($postData['footer_text']));
         update_option('jrm_killboard_cols',$postData['cols']);
         update_option('jrm_killboard_dev_sign',sanitize_text_field($postData['dev_sign']));
 
@@ -405,8 +432,9 @@ function jrm_killboard_do_upload_killmail() {
 function jrm_killboard_do_validate_post_data($formData) {
     // Admitted props only
     $expected = [
-        'corporation_id', 'cron_secret','max_sync','elements', 'font_size', 'image_size', 
-        'kill_type','bg_kill','text_kill','bg_corporate_kill','text_corporate_kill','cols','dev_sign'
+        'oauth','corporation_id', 'cron_secret','max_sync','elements', 'font_size', 'image_size', 
+        'kill_type','bg_kill','text_kill','bg_corporate_kill','text_corporate_kill',
+        'footer_color','footer_text','cols','dev_sign'
     ];
     $posted = array_keys($formData);
     $diff = array_diff($expected,$posted);
@@ -516,15 +544,18 @@ function jrm_killboard_get_table_data() {
             // HTML response
             $tableData .= '<tr style="background-color:'.$bgColor.'; color:'.$textColor.';">';
             if(in_array('target', $activeCols)) {
-                $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px;" align="center">'.
-                    '<img src="'.JRMKillboard::ESIIMAGEURL.'types/'.$kill->shipId.'/render?size='.$imageSize.'"></td>'.
+                $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px; width: '.$imageSize.'px; height: '.$imageSize.'px;'.
+                    '" align="center"><img src="'.JRMKillboard::ESIIMAGEURL.'types/'.$kill->shipId.'/render?size='.$imageSize.'"></td>'.
                     '<td style="border-left: 0px;"><b>'.$kill->shipName.'</b><br>'.__('Kill worth','jrm_killboard').'&nbsp;'.$worth.'&nbsp;ISK</td>';
             }
             if(in_array('ship', $activeCols)) {
                 $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px;" align="center">'.
-                    '<img src="'.JRMKillboard::ESIIMAGEURL.'alliances/'.$kill->allid.'/logo?size='.$imageSize.'">'.
-                    '<img src="'.JRMKillboard::ESIIMAGEURL.'corporations/'.$kill->corpid.'/logo?size='.$imageSize.'">'.
-                    '<img src="'.JRMKillboard::ESIIMAGEURL.'characters/'.$kill->victimId.'/portrait?size='.$imageSize.'">'.
+                    '<img src="'.JRMKillboard::ESIIMAGEURL.'alliances/'.$kill->allid.'/logo?size='.$imageSize.'" '.
+                    'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;">'.
+                    '<img src="'.JRMKillboard::ESIIMAGEURL.'corporations/'.$kill->corpid.'/logo?size='.$imageSize.'" '.
+                    'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;">'.
+                    '<img src="'.JRMKillboard::ESIIMAGEURL.'characters/'.$kill->victimId.'/portrait?size='.$imageSize.'" '.
+                    'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;">'.
                     '</td><td style="border-left: 0px;">'.__('Corporation','jrm_killboard').':&nbsp;'.$kill->corpname.'<br>'.__('Victim','jrm_killboard').':&nbsp;<b>'.$kill->victim.'</b></td>';
             }
             if(in_array('attackers', $activeCols)) {
@@ -556,7 +587,10 @@ function jrm_killboard_do_get_log() {
     if ( !wp_verify_nonce(  $nonce, 'jrm_killboard_op_nonce' ) ) {
         echo json_encode(['status' => false, 'error' => 'Invalid request']);
     }
-    $logData = file_get_contents(__DIR__.'/admin/processing.log');
+    $upload     = wp_upload_dir();
+    $upload_dir = $upload['basedir'];
+    $upload_dir = $upload_dir . JRMKillboard::DATADIR;
+    $logData = file_get_contents($upload_dir.'/processing.log');
     echo json_encode(['html' => $logData]);
     wp_die();
 }
@@ -618,7 +652,16 @@ function jrm_killboard_plugin_activation() {
     // Init Db
     JRMKillboard::appendLog('Init DB tables');
     jrm_killboard_initDB();
+
+    // Check for required updates
+    $currentPluginVersion = get_option('jrm_killboard_plugin_version');
+    if ($currentPluginVersion != false && $currentPluginVersion != JRM_KILLBOARD_VERSION) {
+        jrm_killboard_process_plugin_update();
+    }
+
     // Init options
+    add_option('jrm_killboard_plugin_version', JRM_KILLBOARD_VERSION);
+    add_option('jrm_killboard_oauth_version', 2);
     add_option('jrm_killboard_esi_client_id','');
     add_option('jrm_killboard_esi_client_secret','');
     add_option('jrm_killboard_cronjob_endpoint','syncKill'); 
@@ -636,6 +679,8 @@ function jrm_killboard_plugin_activation() {
     add_option('jrm_killboard_kills_text','#ffffff');
     add_option('jrm_killboard_deaths_bg','#a60303');
     add_option('jrm_killboard_deaths_text','#ffffff');
+    add_option('jrm_killboard_footer_color','transparent');
+    add_option('jrm_killboard_footer_text','#ffffff');
     add_option('jrm_killboard_cols',array_keys(JRMKillboard::getTableColumns()));
     add_option('jrm_killboard_lastSync',-1);
     add_option('jrm_killboard_dev_sign','show');
@@ -649,6 +694,8 @@ function jrm_killboard_upload_folder() {
     if (! is_dir($upload_dir)) {
        mkdir( $upload_dir, 0700 );
     }
+    touch($upload_dir.'/processing.log');
+    chmod($upload_dir.'/processing.log',0775);
     JRMKillboard::clearLog();
 }
 
@@ -725,6 +772,21 @@ function jrm_killboard_initDB() {
     dbDelta( $query6 );
 }
 
+// Process plugin upgrade actions
+function jrm_killboard_process_plugin_update() {
+    $currentVersion = get_option('jrm_killboard_plugin_version');
+    switch ($currentVersion) {
+        default: // v1.1 fix log file permission
+            $upload     = wp_upload_dir();
+            $upload_dir = $upload['basedir'];
+            $upload_dir = $upload_dir . JRMKillboard::DATADIR;
+            touch($upload_dir.'/processing.log');
+            chmod($upload_dir.'/processing.log',0755);
+            add_option('jrm_killboard_plugin_version', JRM_KILLBOARD_VERSION);
+            break;
+    }
+}
+
 // Plugin Uninstall
 function jrm_killboard_plugin_uninstall() {
     // Remove DB data
@@ -732,6 +794,8 @@ function jrm_killboard_plugin_uninstall() {
     // Remove plugin folder
     jrm_killboard_remove_folder();
     // Remove options
+    delete_option('jrm_killboard_plugin_version');
+    delete_option('jrm_killboard_oauth_version');
     delete_option('jrm_killboard_esi_client_id');
     delete_option('jrm_killboard_esi_client_secret');
     delete_option('jrm_killboard_cronjob_endpoint');
@@ -749,6 +813,8 @@ function jrm_killboard_plugin_uninstall() {
     delete_option('jrm_killboard_kills_text');
     delete_option('jrm_killboard_deaths_bg');
     delete_option('jrm_killboard_deaths_text');
+    delete_option('jrm_killboard_footer_color');
+    delete_option('jrm_killboard_footer_text');
     delete_option('jrm_killboard_cols');
     delete_option('jrm_killboard_lastSync');
     delete_option('jrm_killboard_dev_sign');
@@ -760,6 +826,7 @@ function jrm_killboard_plugin_uninstall() {
     delete_option('jrm_killboard_esi_access_token');
     delete_option('jrm_killboard_esi_refresh_token');
     delete_option('jrm_killboard_fetch_start');
+    delete_option('jrm_killboard_esi_init_call');
 }
 
 // Delete tables and data
@@ -791,6 +858,9 @@ function jrm_killboard_remove_folder() {
     $upload_dir = $upload_dir . JRMKillboard::DATADIR;
     if(file_exists($upload_dir.'/price.json')) {
         unlink($upload_dir.'/price.json');
+    }
+    if(file_exists($upload_dir.'/processing.log')) {
+        unlink($upload_dir.'/processing.log');
     }
     rmdir($upload_dir);
 }

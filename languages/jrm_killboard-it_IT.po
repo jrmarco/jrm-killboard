@@ -1,15 +1,15 @@
-# Copyright (C) 2019 jrmarco
+# Copyright (C) 2020 jrmarco
 # This file is distributed under the same license as the JRM Killboard plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: JRM Killboard 1.0\n"
+"Project-Id-Version: JRM Killboard 1.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/jrm_killboard\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2019-12-24T13:58:10+00:00\n"
-"PO-Revision-Date: 2019-12-27 18:40+0100\n"
+"POT-Creation-Date: 2020-01-26 19:51+0100\n"
+"PO-Revision-Date: 2020-01-26 20:09+0100\n"
 "X-Generator: Poedit 2.2.4\n"
 "X-Domain: jrm_killboard\n"
 "Last-Translator: \n"
@@ -57,7 +57,7 @@ msgid "..Please wait.."
 msgstr "..Prego attendi.."
 
 #: admin/partials/main_panel.php:5 admin/partials/main_settings.php:8
-msgid "..Please wait. Process may take some time to process.."
+msgid "..Please wait. Processing may take some time to complete.."
 msgstr "..Prego attendi. Il processo può impiegare del tempo per elaborare.."
 
 #: admin/partials/main_panel.php:9
@@ -116,9 +116,19 @@ msgstr "Nascondi"
 msgid "Show"
 msgstr "Mostra"
 
-#: admin/partials/main_panel.php:53 jrmkb_killboard.php:511
+#: admin/partials/main_panel.php:53 jrmkb_killboard.php:538
 msgid "Pending"
 msgstr "Mancante"
+
+#: admin/partials/main_panel.php:56 jrmkb_killboard.php:559
+#: public/partials/frontend.php:59
+msgid "Victim"
+msgstr "Vittima"
+
+#: admin/partials/main_panel.php:56 jrmkb_killboard.php:559
+#: public/partials/frontend.php:59
+msgid "Corporation"
+msgstr "Corporazione"
 
 #: admin/partials/main_panel.php:62
 msgid "Delete"
@@ -136,7 +146,7 @@ msgstr "Prima pagina"
 msgid "Previous"
 msgstr "Precedente"
 
-#: admin/partials/main_panel.php:80 jrmkb_killboard.php:547
+#: admin/partials/main_panel.php:80 jrmkb_killboard.php:577
 #: public/partials/frontend.php:13 public/partials/frontend.php:83
 msgid "of"
 msgstr "di"
@@ -157,7 +167,7 @@ msgstr "Pagina"
 msgid "Go"
 msgstr "Vai"
 
-#: admin/partials/main_settings.php:2 jrmkb_killboard.php:78
+#: admin/partials/main_settings.php:2 jrmkb_killboard.php:83
 msgid "Settings"
 msgstr "Impostazioni"
 
@@ -193,11 +203,23 @@ msgstr "Client Id"
 msgid "Client Secret"
 msgstr "Client Secret"
 
-#: admin/partials/main_settings.php:28
+#: admin/partials/main_settings.php:30
+msgid "OAuth Version"
+msgstr "Versione OAuth"
+
+#: admin/partials/main_settings.php:36
+msgid "v1"
+msgstr "v1"
+
+#: admin/partials/main_settings.php:40
+msgid "v2 (Recommended)"
+msgstr "v2 (Raccomandato)"
+
+#: admin/partials/main_settings.php:47
 msgid "Synchronization"
 msgstr "Sincronizzazione"
 
-#: admin/partials/main_settings.php:34
+#: admin/partials/main_settings.php:56
 msgid ""
 "Synchronization can be achieved using %s. We discourage the use of it, "
 "especially for heavy load platform or if you have direct access to system "
@@ -207,268 +229,335 @@ msgstr ""
 "specialmente per piattaforme ad alto carico di lavoro o se hai accesso "
 "diretto al cron di sistema o ad un servizio esterno. "
 
-#: admin/partials/main_settings.php:37 admin/partials/main_settings.php:76
-#: admin/partials/main_settings.php:221
+#: admin/partials/main_settings.php:58 admin/partials/main_settings.php:100
+#: admin/partials/main_settings.php:262
 msgid "Save configurations"
 msgstr "Salva configurazioni"
 
-#: admin/partials/main_settings.php:40
+#: admin/partials/main_settings.php:61
 msgid "ESI SSO Authentication"
 msgstr "Autenticazione ESI SSO"
 
-#: admin/partials/main_settings.php:45
+#: admin/partials/main_settings.php:66
 msgid "Status"
 msgstr "Stato"
 
-#: admin/partials/main_settings.php:45
+#: admin/partials/main_settings.php:66
 msgid "Synched"
 msgstr "Sincronizzato"
 
-#: admin/partials/main_settings.php:45
+#: admin/partials/main_settings.php:66
 msgid "Offline"
 msgstr "Offline"
 
-#: admin/partials/main_settings.php:50
-msgid "EVE SSO Authenticate"
-msgstr "Autentica EVE SSO"
-
-#: admin/partials/main_settings.php:55
+#: admin/partials/main_settings.php:79
 msgid "Remove"
 msgstr "Rimuovi"
 
-#: admin/partials/main_settings.php:62
+#: admin/partials/main_settings.php:86
 msgid "Cronjob Access Point: "
 msgstr "Punto di accesso Cronjob: "
 
-#: admin/partials/main_settings.php:65
+#: admin/partials/main_settings.php:89
 msgid "External Cronjob Configuration"
 msgstr "Configurazione Cronjob Esterno"
 
-#: admin/partials/main_settings.php:67
+#: admin/partials/main_settings.php:91
 msgid "Endpoints Name"
 msgstr "Nome punti di accesso"
 
-#: admin/partials/main_settings.php:71
+#: admin/partials/main_settings.php:95
 msgid "Endpoints Secret"
 msgstr "Secret punti di accesso"
 
-#: admin/partials/main_settings.php:73
+#: admin/partials/main_settings.php:97
 msgid "Random"
 msgstr "Casuale"
 
-#: admin/partials/main_settings.php:81
+#: admin/partials/main_settings.php:105
 msgid "Graphic Settings"
 msgstr "Impostazioni Grafiche"
 
-#: admin/partials/main_settings.php:83 admin/partials/main_settings.php:84
+#: admin/partials/main_settings.php:107 admin/partials/main_settings.php:108
 msgid "Killboard title"
 msgstr "Titolo Killboard"
 
-#: admin/partials/main_settings.php:89
+#: admin/partials/main_settings.php:113
 msgid "Margin"
 msgstr "Margine"
 
-#: admin/partials/main_settings.php:95
+#: admin/partials/main_settings.php:119
 msgid "Padding"
 msgstr "Spaziatura"
 
-#: admin/partials/main_settings.php:103
+#: admin/partials/main_settings.php:127
 msgid "Elements per page"
 msgstr "Elementi per pagina"
 
-#: admin/partials/main_settings.php:113
+#: admin/partials/main_settings.php:137
 msgid "Show kills"
 msgstr "Mostra kills"
 
-#: admin/partials/main_settings.php:115
+#: admin/partials/main_settings.php:139
 msgid "All"
 msgstr "Tutte"
 
-#: admin/partials/main_settings.php:116
+#: admin/partials/main_settings.php:140
 msgid "Done"
 msgstr "Eseguite"
 
-#: admin/partials/main_settings.php:117
+#: admin/partials/main_settings.php:141
 msgid "Suffered"
 msgstr "Subite"
 
-#: admin/partials/main_settings.php:125
+#: admin/partials/main_settings.php:149
 msgid "Font size"
 msgstr "Dimensione testo"
 
-#: admin/partials/main_settings.php:135
+#: admin/partials/main_settings.php:159
 msgid "Image size"
 msgstr "Dimensione immagine"
 
-#: admin/partials/main_settings.php:145
+#: admin/partials/main_settings.php:169
 msgid "Kills done"
 msgstr "Uccisioni eseguite"
 
-#: admin/partials/main_settings.php:149 admin/partials/main_settings.php:166
+#: admin/partials/main_settings.php:173 admin/partials/main_settings.php:190
+#: admin/partials/main_settings.php:207
 msgid "Background color"
 msgstr "Colore sfondo"
 
-#: admin/partials/main_settings.php:156 admin/partials/main_settings.php:173
+#: admin/partials/main_settings.php:180 admin/partials/main_settings.php:197
+#: admin/partials/main_settings.php:214
 msgid "Text color"
 msgstr "Colore testo"
 
-#: admin/partials/main_settings.php:162
+#: admin/partials/main_settings.php:186
 msgid "Kills suffered"
 msgstr "Uccisioni subite"
 
-#: admin/partials/main_settings.php:180
-msgid "Table columns"
-msgstr "Colonne tabella"
+#: admin/partials/main_settings.php:203
+msgid "Header,table header and footer settings"
+msgstr "Impostazioni header, header tabella e footer"
 
-#: admin/partials/main_settings.php:188
+#: admin/partials/main_settings.php:221
 msgid "Display Developer Sign on Frontend"
 msgstr "Mostra firma sviluppatore nel Frontend"
 
-#: admin/partials/main_settings.php:191
+#: admin/partials/main_settings.php:224
 msgid "Yes"
 msgstr "Si"
 
-#: admin/partials/main_settings.php:195
+#: admin/partials/main_settings.php:228
 msgid "No"
 msgstr "No"
 
-#: admin/partials/main_settings.php:199
+#: admin/partials/main_settings.php:232
+msgid "Table columns"
+msgstr "Colonne tabella"
+
+#: admin/partials/main_settings.php:240 admin/partials/main_settings.php:289
 msgid "Logs"
 msgstr "Logs"
 
-#: admin/partials/main_settings.php:200
+#: admin/partials/main_settings.php:241
 msgid "Read log"
 msgstr "Leggi Log"
 
-#: admin/partials/main_settings.php:201
+#: admin/partials/main_settings.php:242
 msgid "Clear log"
 msgstr "Cancella Log"
 
-#: admin/partials/main_settings.php:209
+#: admin/partials/main_settings.php:250
 msgid "Statistics"
 msgstr "Statistiche"
 
-#: admin/partials/main_settings.php:210
+#: admin/partials/main_settings.php:251
 msgid "Ready"
 msgstr "Pronto"
 
-#: admin/partials/main_settings.php:212
+#: admin/partials/main_settings.php:253
 msgid "Capsuler"
 msgstr "Capsuler"
 
-#: admin/partials/main_settings.php:213
+#: admin/partials/main_settings.php:254
 msgid "Killmails"
 msgstr "Killmails"
 
-#: admin/partials/main_settings.php:214
+#: admin/partials/main_settings.php:255
 msgid "Corporations"
 msgstr "Corporazioni"
 
-#: admin/partials/main_settings.php:215
+#: admin/partials/main_settings.php:256
 msgid "Items"
 msgstr "Oggetti"
 
-#: admin/partials/main_settings.php:217
+#: admin/partials/main_settings.php:258
 msgid "Price synced"
 msgstr "Prezzo sicronizzato"
 
-#: admin/partials/main_settings.php:220
+#: admin/partials/main_settings.php:261
 msgid "Sync price"
 msgstr "Sincronizza prezzo"
 
-#: admin/partials/main_settings.php:223
+#: admin/partials/main_settings.php:264
 msgid "Processing Logs"
 msgstr "Log del processamento"
 
-#: admin/partials/main_settings.php:225
-msgid "Killmail"
-msgstr "Killmail"
+#: admin/partials/main_settings.php:274 admin/partials/main_settings.php:279
+msgid "Suffered kill text color missing"
+msgstr "Uccisione subita testo colore mancante"
 
-#: includes/class.jrmkillboard.php:40
+#: admin/partials/main_settings.php:275
+msgid "Suffered kill background color missing"
+msgstr "Uccisione subita colore mancante"
+
+#: admin/partials/main_settings.php:276
+msgid "Kill text color missing"
+msgstr "Uccisione testo colore mancante"
+
+#: admin/partials/main_settings.php:277
+msgid "Kill background color missing"
+msgstr "Uccisione colore mancante"
+
+#: admin/partials/main_settings.php:278
+msgid "Corporation ID missing"
+msgstr "Corporazione ID mancante"
+
+#: admin/partials/main_settings.php:280
+msgid "Other color missing"
+msgstr "Altro colore mancante"
+
+#: admin/partials/main_settings.php:281
+msgid "Other text color missing"
+msgstr "Altro testo colore mancante"
+
+#: includes/class.jrmkillboard.php:48
 msgid "Disabled"
 msgstr "Disabilitato"
 
-#: includes/class.jrmkillboard.php:41
+#: includes/class.jrmkillboard.php:49
 msgid "Every hour"
 msgstr "Ogni ora"
 
-#: includes/class.jrmkillboard.php:42
+#: includes/class.jrmkillboard.php:50
 msgid "Twice a day"
 msgstr "Due volte al giorno"
 
-#: includes/class.jrmkillboard.php:43
+#: includes/class.jrmkillboard.php:51
 msgid "Daily"
 msgstr "Giornalmente"
 
-#: includes/class.jrmkillboard.php:69
+#: includes/class.jrmkillboard.php:77
 msgid "Small"
 msgstr "Piccolo"
 
-#: includes/class.jrmkillboard.php:70
+#: includes/class.jrmkillboard.php:78
 msgid "Medium"
 msgstr "Medio"
 
-#: includes/class.jrmkillboard.php:71
+#: includes/class.jrmkillboard.php:79
 msgid "Big"
 msgstr "Grande"
 
-#: includes/class.jrmkillboard.php:72
+#: includes/class.jrmkillboard.php:80
 msgid "Original"
 msgstr "Originale"
 
-#: includes/class.jrmkillboard.php:82
+#: includes/class.jrmkillboard.php:90
 msgid "Ship"
 msgstr "Nave"
 
-#: includes/class.jrmkillboard.php:83
+#: includes/class.jrmkillboard.php:91
 msgid "Target"
 msgstr "Obbiettivo"
 
-#: includes/class.jrmkillboard.php:84
+#: includes/class.jrmkillboard.php:92
 msgid "Attackers"
 msgstr "Attaccanti"
 
-#: includes/class.jrmkillboard.php:85
+#: includes/class.jrmkillboard.php:93
 msgid "Damage"
 msgstr "Danno"
 
-#: includes/class.jrmkillboard.php:86
+#: includes/class.jrmkillboard.php:94
 msgid "Position"
 msgstr "Posizione"
 
-#: includes/class.jrmkillboard.php:190
+#: includes/class.jrmkillboard.php:198 includes/class.jrmkillboard.php:200
+#: includes/class.jrmkillboard.php:202
+msgid "Final blow"
+msgstr "Colpo finale"
+
+#: includes/class.jrmkillboard.php:198
 msgid "and others"
 msgstr "e altri"
 
-#: includes/class.jrmkillboard.php:192
+#: includes/class.jrmkillboard.php:200
 msgid "and another one"
 msgstr "e un altro"
 
-#: includes/class.jrmkillboard.php:264
+#: includes/class.jrmkillboard.php:272
 msgid "Error:: Something went wrong and I was not able to store Killmail data"
 msgstr ""
 "Errore:: Qualcosa è andato storto e non sono stato in grado di salvare la "
 "Killmail"
 
-#: includes/class.jrmkillboard.php:438
+#: includes/class.jrmkillboard.php:454
 msgid "This Killmail does not exists"
 msgstr "Questa Killmail non esiste"
 
-#: includes/class.jrmkillboard.php:449
+#: includes/class.jrmkillboard.php:465
 msgid "Killmail does not belong to your corporation"
 msgstr "La Killmail non appartiene alla tua corporazione"
 
-#: includes/class.jrmkillboard.php:455
+#: includes/class.jrmkillboard.php:470
 msgid "Something went wrong"
 msgstr "Qualcosa è andato storto"
 
-#: includes/class.jrmkillboard.php:461
+#: includes/class.jrmkillboard.php:474
 msgid "Invalid Killmail link"
 msgstr "Link Killmail non valido"
 
-#: includes/class.jrmkillboard.php:1011
+#: includes/class.jrmkillboard.php:1027
 msgid "Missing Price file"
 msgstr "File Prezzo mancante"
+
+#: includes/class.jrmkillboard.php:1124
+msgid "Error 400 : Bad Request"
+msgstr "Error 400 : Bad Request"
+
+#: includes/class.jrmkillboard.php:1125
+msgid "Error 401 : Unauthorized"
+msgstr "Error 401 : Unauthorized"
+
+#: includes/class.jrmkillboard.php:1126
+msgid "Error 403 : Forbidden"
+msgstr "Error 403 : Forbidden"
+
+#: includes/class.jrmkillboard.php:1127
+msgid "Error 404 : Not Found"
+msgstr "Error 404 : Not Found"
+
+#: includes/class.jrmkillboard.php:1128
+msgid "Error 408 : Request Timeout"
+msgstr "Error 408 : Request Timeout"
+
+#: includes/class.jrmkillboard.php:1129
+msgid "Error 500 : Internal Server Error"
+msgstr "Error 500 : Internal Server Error"
+
+#: includes/class.jrmkillboard.php:1130
+msgid "Error 502 : Bad Gateway"
+msgstr "Error 502 : Bad Gateway"
+
+#: includes/class.jrmkillboard.php:1131
+msgid "Error 503 : Service Unavailable"
+msgstr "Error 503 : Service Unavailable"
+
+#: includes/class.jrmkillboard.php:1132
+msgid "Error 504 : Gateway Timeout"
+msgstr "Error 504 : Gateway Timeout"
 
 #: includes/class.jrmkillboardfe.php:132
 msgid "JRMKillboard Fatal Error:: Missing template file"
@@ -478,48 +567,48 @@ msgstr "JRMKillboard Errore Fatale:: File template mancante"
 msgid "Fatal Error - Cannot renew SSO ESI token"
 msgstr "Errore Fatale - Impossibile rinnovare SSO ESI token"
 
-#: includes/class.jrmkillboardfe.php:220
+#: includes/class.jrmkillboardfe.php:212
 msgid "Fetching kill started %s"
 msgstr "Recupero uccisioni iniziato %s"
 
-#: includes/class.jrmkillboardfe.php:235
+#: includes/class.jrmkillboardfe.php:227
 msgid "Fetching kills, Completed"
 msgstr "Recupero uccisioni, Completato"
 
-#: includes/class.jrmkillboardfe.php:294
-msgid "Fatal Error:: cURL Error "
-msgstr "Errore Fatale:: cUrl Errore "
-
-#: jrmkb_killboard.php:76
+#: jrmkb_killboard.php:81
 msgid "Main"
 msgstr "Principale"
 
-#: jrmkb_killboard.php:85
+#: jrmkb_killboard.php:90
 msgid "JRM Killboard Fatal Error :: Php Curl module required"
 msgstr "JRM Killboard Errore Fatale :: Modulo Curl Php richiesto"
 
-#: jrmkb_killboard.php:90
+#: jrmkb_killboard.php:95
 msgid "JRM Killboard Fatal Error :: Php option allow_url_fopen not active"
 msgstr "JRM Killboard Errore Fatale :: Opzione Php allow_url_fopen non attiva"
 
-#: jrmkb_killboard.php:96
+#: jrmkb_killboard.php:101
 msgid "JRM Killboard Fatal Error :: missing required files"
 msgstr "JRM Killboard Errore Fatale :: file richiesti mancanti"
 
-#: jrmkb_killboard.php:287 jrmkb_killboard.php:593
+#: jrmkb_killboard.php:310 jrmkb_killboard.php:626
 #: public/jrmkillboard_public.php:51
 msgid "Price synced %s"
 msgstr "Prezzo sincronizzato %s"
 
-#: jrmkb_killboard.php:444
+#: jrmkb_killboard.php:471
 msgid "Invalid request"
 msgstr "Richiesta non valida"
 
-#: jrmkb_killboard.php:596 public/jrmkillboard_public.php:54
+#: jrmkb_killboard.php:549 public/partials/frontend.php:55
+msgid "Kill worth"
+msgstr "Valore Kill"
+
+#: jrmkb_killboard.php:632 public/jrmkillboard_public.php:57
 msgid "Permission error file/directory"
 msgstr "Errore permessi file/cartella"
 
-#: jrmkb_killboard.php:625
+#: jrmkb_killboard.php:670
 msgid "Killboard"
 msgstr "Killboard"
 
@@ -542,22 +631,3 @@ msgstr "Calcolo"
 #: public/partials/frontend.php:77
 msgid "Date are synced on the Eve Online time"
 msgstr "Date sincronizzate sull'orario Eve Online"
-
-#: includes/class.jrmkillboard.php:190 includes/class.jrmkillboard.php:192
-#: includes/class.jrmkillboard.php:194
-msgid "Final blow"
-msgstr "Colpo finale"
-
-#: jrmkb_killboard.php:522 public/partials/frontend.php:55
-msgid "Kill worth"
-msgstr "Valore Kill"
-
-#: admin/partials/main_panel.php:56 jrmkb_killboard.php:529
-#: public/partials/frontend.php:59
-msgid "Victim"
-msgstr "Vittima"
-
-#: admin/partials/main_panel.php:56 jrmkb_killboard.php:529
-#: public/partials/frontend.php:59
-msgid "Corporation"
-msgstr "Corporazione"

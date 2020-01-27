@@ -2,14 +2,14 @@
     <input type="hidden" name="wpopnn" id="wpopnn" value="<?php echo wp_create_nonce('jrm_killboard_op_nonce') ?>" />
     <input type="hidden" id="confirm-message" value="<?php _e('Would you like to delete this Killmail [%d] ?','jrm_killboard') ?>" />
     <input type="hidden" id="loading-message" value="<?php _e('..Please wait..','jrm_killboard') ?>" />
-    <input type="hidden" id="loading-long-message" value="<?php _e('..Please wait. Process may take some time to process..','jrm_killboard') ?>" />
+    <input type="hidden" id="loading-long-message" value="<?php _e('..Please wait. Processing may take some time to complete..','jrm_killboard') ?>" />
     <div style="background-image: url('https://web.ccpgamescdn.com/triallandingassets/new/eve-online.png'); background-repeat: no-repeat; padding: 2px; width: 100%; height: 50px; background-color: #000;"><h3 style="margin-left: 200px; color: #fff;">JRM Killboard</h3></div>
     <div style="margin:10px;">
         <div id="jrm_alert" align="center" class="m-2 alert p-2 hidden"></div>
         <?php _e('Manually import Killmail','jrm_killboard') ?>
         <div class="input-group mb-3">
             <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Killmail URL','jrm_killboard') ?></span></div>
-            <input type="text" class="form-control" placeholder="https://esi.evetech.net/latest/killmails/...." name="link_kill" id="link_kill" >
+            <input type="text" class="form-control" placeholder="https://esi.evetech.net/.../killmails/...." name="link_kill" id="link_kill" >
             <div class="input-group-append"><button class="btn btn-outline-secondary" type="button" onclick="fetchKillmail()"><?php _e('Load Kill','jrm_killboard') ?></button></div>
         </div>
         <?php if($killsWithNoWorth>0 || (!is_null($pendingItems) && !empty($pendingItems)) ) : ?>

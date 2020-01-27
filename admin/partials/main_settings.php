@@ -5,7 +5,7 @@
             <form id="setting_form">
             <input type="hidden" name="wpopnn" id="wpopnn" value="<?php echo wp_create_nonce('jrm_killboard_op_nonce') ?>" />
             <input type="hidden" id="loading-message" value="<?php _e('..Please wait..','jrm_killboard') ?>" />
-            <input type="hidden" id="loading-long-message" value="<?php _e('..Please wait. Process may take some time to process..','jrm_killboard') ?>" />
+            <input type="hidden" id="loading-long-message" value="<?php _e('..Please wait. Processing may take some time to complete..','jrm_killboard') ?>" />
             <div class="row">
                 <div class="col" style="margin: auto; padding: auto;">
                     <h6><?php _e('General Settings','jrm_killboard') ?></h6><br>
@@ -24,15 +24,36 @@
                             <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Client Secret','jrm_killboard') ?></span></div>
                             <input type="password" class="form-control" id="esi_client_secret" name="esi_client_secret" placeholder="<?php _e('Client Secret','jrm_killboard') ?>" value="<?php echo !empty($esiClientSecret) ? '************' : '' ?>" <?php if($esiStatus) { echo 'disabled'; } ?>>
                         </div>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Synchronization','jrm_killboard') ?></span></div>
-                            <select class="custom-select" name="max_sync" id="max_sync">
-                                <?php foreach (JRMKillboard::getSyncOptions() as $key => $value) : ?>
-                                    <option <?php if($key == $maxSync) { echo 'selected'; } ?> value="<?php echo $key ?>"><?php echo $value ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <p style="font-size: x-small;"><?php echo sprintf(__('Synchronization can be achieved using %s. We discourage the use of it, especially for heavy load platform or if you have direct access to system cron or external service. ','jrm_killboard'),'<a href="https://developer.wordpress.org/plugins/cron/" target="_blank">WP-Cron</a>') ?></p>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('OAuth Version','jrm_killboard') ?></span></div>
+                                    <?php if(!empty($esiClientId) && !empty($esiClientSecret)) : ?>
+                                    <input type="text" class="form-control" id="oauth" name="oauth" value="<?php echo $oauth ?>" disabled="">
+                                    <?php else : ?>
+                                    <div class="form-check form-check-inline" style="margin-left: 5px;">
+                                        <input class="form-check-input" type="radio" name="oauth" id="oauth_v1" value="1" <?php if($oauth=='1') { echo 'checked'; } ?>>
+                                        <label class="form-check-label"><?php _e('v1','jrm_killboard') ?></label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="oauth" id="oauth_v2" value="2" <?php if($oauth=='2') { echo 'checked'; } ?>>
+                                        <label class="form-check-label"><?php _e('v2 (Recommended)','jrm_killboard') ?></label>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Synchronization','jrm_killboard') ?></span></div>
+                                    <select class="custom-select" name="max_sync" id="max_sync">
+                                        <?php foreach (JRMKillboard::getSyncOptions() as $key => $value) : ?>
+                                            <option <?php if($key == $maxSync) { echo 'selected'; } ?> value="<?php echo $key ?>"><?php echo $value ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+                        <p style="font-size: x-small;"><?php echo sprintf(__('Synchronization can be achieved using %s. We discourage the use of it, especially for heavy load platform or if you have direct access to system cron or external service. ','jrm_killboard'),'<a href="https://developer.wordpress.org/plugins/cron/" target="_blank">WP-Cron</a>') ?></p>
                         <div class="input-group mb-3">
                             <button class="btn btn-sm btn-outline-primary" type="button" onclick="saveConfig()"><?php _e('Save configurations','jrm_killboard') ?></button>
                         </div>
@@ -40,18 +61,21 @@
                             <?php _e('ESI SSO Authentication','jrm_killboard') ?>
                         </div>
                         <div class="row">
-                            <div class="col" style="width: 30%;">
+                            <div class="col-3 inline-block">
                                 <div class="alert alert-<?php echo ($esiStatus) ? 'success' : 'danger' ?>">
                                     <?php _e('Status','jrm_killboard') ?> : <?php echo ($esiStatus) ? _e('Synched','jrm_killboard') : _e('Offline','jrm_killboard') ?>
                                 </div>
                             </div>
                             <?php if(!$esiStatus && !empty($esiClientId) && !empty($esiClientSecret)) : ?>
-                            <div class="col" style="width: 30%;">
-                                <button class="btn btn-success" data-auth-link="https://login.eveonline.com/v2/oauth/authorize/" data-esi-id="<?php echo $esiClientId ?>" data-esi-state="<?php echo uniqid() ?>" data-esi-scope="esi-killmails.read_corporation_killmails.v1" data-redirect="<?php echo $pluginPageUrl ?>" onclick="initAuthorization(this)" type="button"><?php _e('EVE SSO Authenticate','jrm_killboard') ?></button>
+                            <div class="col-5 inline-block">
+                                <button class="btn" data-auth-link="<?php echo $oauthLink ?>" data-esi-id="<?php echo $esiClientId ?>" data-esi-state="<?php echo $esiUniqueCode ?>" data-esi-scope="esi-killmails.read_corporation_killmails.v1" data-redirect="<?php echo $pluginPageUrl ?>" onclick="initAuthorization(this)" type="button">
+                                    <?php //_e('EVE SSO Authenticate','jrm_killboard') ?>
+                                    <img src="https://web.ccpgamescdn.com/eveonlineassets/developers/eve-sso-login-black-small.png" />
+                                </button>
                             </div>
                             <?php endif; ?>
                             <?php if(!empty($esiClientId) && !empty($esiClientSecret)) : ?>
-                            <div class="col" style="width: 30%;">
+                            <div class="col-3 inline-block">
                                 <button class="btn btn-danger" onclick="removeAuthorization()" type="button"><?php _e('Remove','jrm_killboard') ?></button>
                             </div>
                             <?php endif; ?>
@@ -176,13 +200,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Table columns','jrm_killboard') ?></span></div>
-                            <select class="custom-select" multiple name="cols" id="cols">
-                            <?php foreach (JRMKillboard::getTableColumns() as $key => $value) : ?>
-                                <option <?php if(in_array($key,$cols)) { echo 'selected'; } ?> value="<?php echo $key ?>"><?php echo $value ?></option>
-                            <?php endforeach; ?>
-                            </select>
+                        <?php _e('Header,table header and footer settings','jrm_killboard') ?>
+                        <div class="row">
+                            <div class="col">
+                                <div class="input-group mb-3" onmouseout="colorPreview(this)">
+                                    <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Background color','jrm_killboard') ?></span></div>
+                                    <input type="text" class="form-control" id="footer_color" name="footer_color" placeholder="lightgray" value="<?php echo $footerColor ?>">
+                                    <input style="background-color: <?php echo $footerColor ?>" type="text" class="form-control col-2 quickview" disabled>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group mb-3" onmouseout="colorPreview(this)">
+                                    <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Text color','jrm_killboard') ?></span></div>
+                                    <input type="text" class="form-control" id="footer_text" name="footer_text" placeholder="white" value="<?php echo $footerText ?>">
+                                    <input style="background-color: <?php echo $footerText ?>" type="text" class="form-control col-2 quickview" disabled>
+                                </div>
+                            </div>
                         </div>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Display Developer Sign on Frontend','jrm_killboard') ?></span></div>
@@ -194,6 +227,14 @@
                               <input class="form-check-input" type="radio" name="dev_sign" id="dev_sign_no" value="hide" <?php if(!$devSign) { echo 'checked'; } ?>>
                               <label class="form-check-label"><?php _e('No','jrm_killboard') ?></label>
                             </div>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Table columns','jrm_killboard') ?></span></div>
+                            <select class="custom-select" multiple name="cols" id="cols">
+                            <?php foreach (JRMKillboard::getTableColumns() as $key => $value) : ?>
+                                <option <?php if(in_array($key,$cols)) { echo 'selected'; } ?> value="<?php echo $key ?>"><?php echo $value ?></option>
+                            <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Logs','jrm_killboard') ?></span></div>
@@ -235,7 +276,9 @@
         data-error-text_kill="<?php _e('Kill text color missing','jrm_killboard') ?>"
         data-error-bg_kill="<?php _e('Kill background color missing','jrm_killboard') ?>"
         data-error-corporation_id="<?php _e('Corporation ID missing','jrm_killboard') ?>"
-        data-error-text_corporate_kill="<?php _e('Suffered kill text color missing','jrm_killboard') ?>">
+        data-error-text_corporate_kill="<?php _e('Suffered kill text color missing','jrm_killboard') ?>"
+        data-error-footer_color="<?php _e('Other color missing','jrm_killboard') ?>"
+        data-error-footer_text="<?php _e('Other text color missing','jrm_killboard') ?>">
     </span>
     <?php include 'copyright_footer.php' ?>
 </div>
