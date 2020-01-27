@@ -6,7 +6,7 @@ Tags: eveonline, eve online, eve, killboard, game
 Requires at least: 4.8.12
 Tested up to: 5.3.2
 Requires PHP: 5.6
-Stable tag: 1
+Stable tag: 1.1
 License: GPLv2 or later
 
 Display corporation kills using Killmails: sync it manually or automatically. Customizable: display your killboard the way you like it
@@ -52,8 +52,23 @@ PLEASE NOTICE: To be able to use the ESI API application synchronization, you ne
 
 == Changelog ==
 
+= 1.1 =
+* Add custom color to Header, table header and footer
+* Add css and styles to frontend images table
+* Add option to sync ESI API with OAuth v1 and v2
+
 = 1.0 =
 * Release JRM Killboard 1.0
+
+== Upgrade Notice ==
+
+= 1.1 =
+* Fixed Killmail validation link
+* Fixed issue with css custom themes
+* Fixed log file permission
+* Recude header & body POST data
+* Add OAuth v1
+* Fixed request validation when performing SSO
 
 == GUIDE : JRM Killboard Main ==
 
@@ -69,6 +84,7 @@ JRM Killboard Admin Settings page: from this page you can setup and customize th
 	* ONLY WITH ESI APPLICATION ENABLED AND SYNC : 
 		* Client Id : ESI Application ID, is specific for your application. Retrieve it from the ESI Application admin panel. DO NOT SHARE THIS DATA
 		* Client Secret : ESI Application Secret, is specific for your application. Retrieve it from the ESI Application admin panel. DO NOT SHARE THIS DATA
+		* OAuth version : You can choose which version of OAuth standard use. I recommend Version2. If you don't know what this mean, just leave version 2
 		* Synchronization : this field set up the period of run of the cronjob offered by Wordpress ( WP-Cron ). This process can be run every hour, twice a day or once per day. We advise against the use of it, especially for heavy load platform. If you have direct access to system cron or external service go for it ( there are a lot on the web, some free )
 		* Endpoints Name: URL name parameter, required in the call to reach the cronjob endpoints
 		* Endpoints Secred: URL secret parameter, required in the call to reach the cronjob endpoints
@@ -84,6 +100,8 @@ JRM Killboard Admin Settings page: from this page you can setup and customize th
 	* Kills done -> text color : same as previous settings, but related to text color
 	* Kills suffered -> background color : table rows background color of the kills your corporation suffered. Field accept HTML color value ( textual or hexadecimal ). Sample : red OR #008000 OR cyan. You can have a preview moving out your focus from the field
 	* Kills suffered -> text color : same as previous settings, but related to text color
+	* Header,table header and footer settings -> background color : background color of main frontend page header,table header and footer. Field accept HTML color value ( textual or hexadecimal ). Sample : red OR #008000 OR cyan. You can have a preview moving out your focus from the field
+	* Header,table header and footer settings -> text color : same as previous settings, but related to text color
 	* Table columns : allows to choose which columns you want to display on the frontend killboard page. At least one column must be active
 	* Display Developer Sign on Frontend : enable/disable the developer sign on the frontend killboard page ( Made with ♥ by jrmarco ), if you want to support me
 
@@ -95,7 +113,7 @@ On the very right side of the page you can see two sections
 
 First of all, if you don't know what Killmails are, [read this](https://wiki.eveuniversity.org/Killmail). Killmails can be synced manually or automatically via an ESI Application. We will now dive into the "How-To" on both scenario:
 
-* Manually load killmail : killmail can be manually imported ( this can be done even if you enabled the ESI Application auto sync ). First of all a Corporation ID must be stored in the Admin Settings page. If you skip this step manual sync won't be possible. From the JRM Killboard :: Main page, use the top field called Killmail URL : paste the killmail link ( links have this format: https://esi.evetech.net/latest/killmails/ KILL-ID / KILL-HASH / ) and click on the Load Kill button. Your kill will be loaded ( if not present ) and all the information fetched. If the kill items are missing or price is missing at that time, process will ask you to provide a price for it
+* Manually load killmail : killmail can be manually imported ( this can be done even if you enabled the ESI Application auto sync ). First of all a Corporation ID must be stored in the Admin Settings page. If you skip this step manual sync won't be possible. From the JRM Killboard :: Main page, use the top field called Killmail URL : paste the killmail link ( links have this format: https://esi.evetech.net/ (LATEST OR V1) /killmails/ KILL-ID / KILL-HASH / ) and click on the Load Kill button. Your kill will be loaded ( if not present ) and all the information fetched. If the kill items are missing or price is missing at that time, process will ask you to provide a price for it
 
 * Auto Sync Killmail - ESI Application : killmails and price sync can be done automatically using the combination of an ESI Application and a Cronjob. The application and the cronjob are not direct part of the plugin, you need to provide them TO the plugin.
 	* ESI Application: an ESI application must be requested and created from the [Eve Developer](https://developers.eveonline.com/) website. To obtain one:
