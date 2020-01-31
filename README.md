@@ -1,21 +1,8 @@
-# JRM Killboard
+# JRM Killboard ![version](https://img.shields.io/badge/stable-1.1.1-blue) ![license](https://img.shields.io/badge/license-GPLv2-brightgreen)
 
-![version](https://img.shields.io/badge/stable-1.1.1-blue) ![license](https://img.shields.io/badge/license-GPLv2-brightgreen)
+Tags: eveonline, eve online, eve, killboard, game, Requires at least: 4.8.12, Tested up to: 5.3.2, Requires PHP: 5.6, Stable tag: 1.1.1, License: GPLv2 or later
 
-=== JRM Killboard ===
-
-Contributors: jrmarco
-Donate link: https://bigm.it
-Tags: eveonline, eve online, eve, killboard, game
-Requires at least: 4.8.12
-Tested up to: 5.3.2
-Requires PHP: 5.6
-Stable tag: 1.1.1
-License: GPLv2 or later
-
-Display corporation kills using Killmails: sync it manually or automatically. Customizable: display your killboard the way you like it
-
-== Description ==
+## Description
 
 JRM Killboard is a plugin developed for Eve Online gamers and lovers. It creates your local Wordpress Killboard for your corporation to be shown on your frontend fast and easily. You can make fun of your competitors and enemy corporations in a click! It is simple and quick to set up, ready to be used. Can be updated manually or if you have access to the ESI API application, you can link your account and delegate everything to the plugin that will pull and process your corporation killmails for you. Offers a set of settings to adapt the "look & feel" of the killboard to your taste and your Wordpress template. Plugin comes with a specific page template to be activated, with the choices you made on the admin settings page and offers two endpoint to perform automatic updates of killmails and item prices. In case you don't have access to an ESI API application account you can always manually loads your corporation killmails from the admin panel with a simple copy&paste. For further details and instructions please read the guide.
 
@@ -31,7 +18,7 @@ Main features:
 
 PLEASE NOTICE: To be able to use the ESI API application synchronization, you need an account on the official Eve Developer website. You can create one [here](https://developers.eveonline.com/)
 
-== Installation ==
+### Installation
 
 * Download the plugin from the Wordpress official plugin store via your Wordpress installation or using the ZIP from the same page
 * Enable the JRM Killboard plugin from the plugins panel
@@ -42,39 +29,27 @@ PLEASE NOTICE: To be able to use the ESI API application synchronization, you ne
 * Create a new page, on the page attribute choose the template: JRM Killboard
 * You are ready to fly!
 
-== Screenshots ==
+###### Changelog
 
-1. Admin Main page
-2. Admin Settings page
-3. Public Killboard page
-4. General settings detail
-5. Graphics settings detail
-6. ESI Sync detail
-7. Stats
-8. Logs
-9. Price calculation and manual price set
-
-== Changelog ==
-
-= 1.1.1 =
+###### 1.1.1
 * Fixed wrong API endpoint
 * Remove limit on price processing
 * Include image fixed size
 
-= 1.1 =
+###### 1.1
 * Add custom color to Header, table header and footer
 * Add css and styles to frontend images table
 * Add option to sync ESI API with OAuth v1 and v2
 
-= 1.0 =
+###### 1.0
 * Release JRM Killboard 1.0
 
-== Upgrade Notice ==
+###### Upgrade Notice
 
-= 1.1.1 =
+###### 1.1.1
 * Fixed wrong API endpoint
 
-= 1.1 =
+###### 1.1
 * Fixed Killmail validation link
 * Fixed issue with css custom themes
 * Fixed log file permission
@@ -82,13 +57,13 @@ PLEASE NOTICE: To be able to use the ESI API application synchronization, you ne
 * Add OAuth v1
 * Fixed request validation when performing SSO
 
-== GUIDE : JRM Killboard Main ==
+#### GUIDE : JRM Killboard Main
 
 JRM Killboard Admin Main page: from this page a list of the synchronized killmails is displayed, sorted by the time when the kill was performed. You can hide/show, delete each kill, you can also reach the killmail report if you need it. Each kill comes with: victim, date, list of the attackers, value of the kill.  From time to time, might happen that kill(s) you sync do not have a price/quotation. This may happen because plugin fails ( price might also be missing at that time ) to retrieve an official price for an item during the price sync. You can identify the killmails that requires an evaluation by the word "Pending" in the "Value" column. The interface will help you showing some tools to complete the kill estimation:
 * Calculate costs : this button will trigger the process to calculate the missing estimation. Process is automated, once complete will update the kills that require an estimation
 * Missing price: this selector will show ( if required ) a list of items that doesn't have an official price or cannot be evaluated at that time. Simply search the price from the market ( or wherever you prefer ) and insert it into the input field and then save. This price will be considered the updated one for that item, until a new price will come up from the next sync
 
-== GUIDE : JRM Killboard Settings ==
+#### GUIDE : JRM Killboard Settings
 
 JRM Killboard Admin Settings page: from this page you can setup and customize the Killboard (backend and frontend). There are several settings in this page, we are going to split them in two main category: General Settings and Graphic Settings, as their header says. The first one control the core process of the plugin, the second one drive the "look & feel" of the killboard public page. Let dive into each settings:
 * General Settings:
@@ -121,7 +96,7 @@ On the very right side of the page you can see two sections
 * Statistics : here will be listed the general stats of your Killboard. Numeric infos about number of capsulers, killmails, corporations and items stored by your platform
 * Processing Logs: here will be shown process log ( notice, info or error ) during auto sycn of killmails and prices
 
-== GUIDE : Killmails ==
+#### GUIDE : Killmails
 
 First of all, if you don't know what Killmails are, [read this](https://wiki.eveuniversity.org/Killmail). Killmails can be synced manually or automatically via an ESI Application. We will now dive into the "How-To" on both scenario:
 
@@ -140,14 +115,14 @@ First of all, if you don't know what Killmails are, [read this](https://wiki.eve
 	* At any moment you can suspent the ESI Application authentication/link using the Remove button, placed next to the ESI Sync status. PLEASE NOTICE: this action won't revoke the ESI Application token, you will have to do it directly from your Eve Online account settings
 	* You can now set up a Cronjob ( System Cronjob, External Cronjob ) that will trigger all the sync process. Point it to the endpoints displayed right after the ESI Application sync status
 
-== Images ==
+#### Images
 
 All the images shown on the Admin pages and in the frontend page of the Killboard are loaded directly from the ESI Image CDN. Images have public access, no authentication is required. I choose to call images from the image service directly because: it is offered via a global CDN, Eve has tons of images ( more than 20000 ) and download them all might be an issue for someone. Documentation can be reached [here](https://images.evetech.net)
 
-== CCP Copyright Notice ==
+#### CCP Copyright Notice
 
 EVE Online and the EVE logo are registered trademarks of CCP hf. EVE Online and all associated logos and designs are the intellectual property of CCP hf. All the images, game data coming from the ESI API or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. JRMKillboard uses EVE Online and all associated logos and designs for information purposes only on this website but does not endorse, and is not in any way affiliated with it. CCP is in no way responsible for the content nor functioning of this Wordpress plugin, nor can it be liable for any damage arising from the use of this Wordpress plugin. All Eve Related Materials are Property Of [CCP Games](http://www.ccpgames.com/). This Wordpress plugin ( JRMKillboard ) makes use of ESI Api and Eve Online Developer applications. All information can be found on official [Eve Developers Website](https://developers.eveonline.com/) - [License Agreement](https://developers.eveonline.com/resource/license-agreement). - © 2014 CCP hf. All rights reserved. "EVE", "EVE Online", "CCP", and all related logos and images are trademarks or registered trademarks of CCP hf.
 
-== Disclaimer == 
+#### Disclaimer
 
 JRMKillboard and his creator ( jrmarco ) is not responsible for any damage arising the use of this Wordpress plugin nor any limitation/block/ban/interruption of service of your Eve Developer Application caused by the use of it 
