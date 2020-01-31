@@ -2,7 +2,7 @@
 /*
 Plugin Name: JRM Killboard
 Description: Killboard for Eve Online Killmails - Plugin allows to store and display your corporation kills using the Killmail system. They can be synched manually or automatically via the ESI API ( please read the instruction to use the ESI API ). Lots of customization allows to display your killboard in the way you like it. Developed by jrmarco ( Pillar Omaristos ). Fly safe capsuler!
-Version: 1.1
+Version: 1.1.1
 Author: jrmarco
 Author URI: https://bigm.it
 License: GPLv2 or later
@@ -540,23 +540,21 @@ function jrm_killboard_get_table_data() {
             $securityStatus = '(<span style="color:'.$color.';">'.$kill->securityStatus.'</span>)';
 
             $worth = JRMKillboard::niceNumberFormat($kill->worth);
-
+            $imgUrl = JRMKillboard::ESIIMAGEURL;
             // HTML response
             $tableData .= '<tr style="background-color:'.$bgColor.'; color:'.$textColor.';">';
             if(in_array('target', $activeCols)) {
-                $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px; width: '.$imageSize.'px; height: '.$imageSize.'px;'.
-                    '" align="center"><img src="'.JRMKillboard::ESIIMAGEURL.'types/'.$kill->shipId.'/render?size='.$imageSize.'"></td>'.
-                    '<td style="border-left: 0px;"><b>'.$kill->shipName.'</b><br>'.__('Kill worth','jrm_killboard').'&nbsp;'.$worth.'&nbsp;ISK</td>';
+                $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px;">'.
+                              '<img src="'.$imgUrl.'types/'.$kill->shipId.'/render?size='.$imageSize.'"></td>'.
+                              '<td style="border-left: 0px;"><b>'.$kill->shipName.'</b><br>'.__('Kill worth','jrm_killboard').'&nbsp;'.$worth.'&nbsp;ISK</td>';
             }
             if(in_array('ship', $activeCols)) {
-                $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px;" align="center">'.
-                    '<img src="'.JRMKillboard::ESIIMAGEURL.'alliances/'.$kill->allid.'/logo?size='.$imageSize.'" '.
-                    'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;">'.
-                    '<img src="'.JRMKillboard::ESIIMAGEURL.'corporations/'.$kill->corpid.'/logo?size='.$imageSize.'" '.
-                    'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;">'.
-                    '<img src="'.JRMKillboard::ESIIMAGEURL.'characters/'.$kill->victimId.'/portrait?size='.$imageSize.'" '.
-                    'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;">'.
-                    '</td><td style="border-left: 0px;">'.__('Corporation','jrm_killboard').':&nbsp;'.$kill->corpname.'<br>'.__('Victim','jrm_killboard').':&nbsp;<b>'.$kill->victim.'</b></td>';
+                $style = 'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;"';
+                $tableData .= '<td style="border-right: 0px;"><img src="'.$imgUrl.'alliances/'.$kill->allid.'/logo?size='.$imageSize.'" '.$style.'></td>'.
+                              '<td style="border-left: 0px; border-right: 0px;"><img src="'.$imgUrl.'corporations/'.$kill->corpid.'/logo?size='.$imageSize.'" '.$style.'></td>'.
+                              '<td style="border-left: 0px; border-right: 0px;"><img src="'.$imgUrl.'characters/'.$kill->victimId.'/portrait?size='.$imageSize.'" '.$style.'></td>'.
+                              '<td style="border-left: 0px; border-right: 0px;">'.__('Corporation','jrm_killboard').':&nbsp;'.$kill->corpname.'<br>'.
+                              __('Victim','jrm_killboard').':&nbsp;<b>'.$kill->victim.'</b></td>';
             }
             if(in_array('attackers', $activeCols)) {
                 $tableData .= '<td title="'.$objName->corporates.'">'.$flatName.'</td>';

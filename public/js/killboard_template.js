@@ -15,10 +15,12 @@
         postData = {action: "jrm_killboard_get_table_data", 'check': nonce, 'offset': offset, 'current': current};
         $.post(axobject.ajaxurl, postData, function (response) {
             let data = JSON.parse(response);
-            console.log(data);
             if(data.count>0) {
                 document.getElementById('tabledata').setAttribute('data-page',data.landing_page);
-                document.getElementById('pageIndex').value = data.index;
+                if (document.getElementById('pageIndex_top') != undefined) {
+                    document.getElementById('pageIndex_top').value = data.index;
+                }
+                document.getElementById('pageIndex_bottom').value = data.index;
                 document.getElementById('tabledata').innerHTML = data.html;
             }
         });

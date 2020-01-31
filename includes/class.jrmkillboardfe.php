@@ -176,20 +176,14 @@ class JRMKillboardFE {
 
         $url = JRMKillboard::
                 ESIURL.'corporations/'.$corporationId.'/killmails/recent/?datasource=tranquility&token='.$accessToken;
-
-        $headers = [
-            'Host' => 'esi.evetech.net',
-            'User-Agent' => 'PHP-Curl/'.curl_version()['version'],
-        ];
          
         $args = array(
-            'method' => 'POST',
             'body' => [],
             'timeout' => '10',
             'redirection' => '5',
             'httpversion' => '1.0',
             'blocking' => true,
-            'headers' => $headers,
+            'headers' => [],
             'cookies' => []
         );
          

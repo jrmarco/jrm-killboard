@@ -1,3 +1,7 @@
+# JRM Killboard
+
+![version](https://img.shields.io/badge/stable-1.1.1-blue) ![license][https://img.shields.io/badge/license-GPLv2-brightgreen]
+
 === JRM Killboard ===
 
 Contributors: jrmarco
@@ -6,7 +10,7 @@ Tags: eveonline, eve online, eve, killboard, game
 Requires at least: 4.8.12
 Tested up to: 5.3.2
 Requires PHP: 5.6
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 
 Display corporation kills using Killmails: sync it manually or automatically. Customizable: display your killboard the way you like it
@@ -52,6 +56,11 @@ PLEASE NOTICE: To be able to use the ESI API application synchronization, you ne
 
 == Changelog ==
 
+= 1.1.1 =
+* Fixed wrong API endpoint
+* Remove limit on price processing
+* Include image fixed size
+
 = 1.1 =
 * Add custom color to Header, table header and footer
 * Add css and styles to frontend images table
@@ -61,6 +70,9 @@ PLEASE NOTICE: To be able to use the ESI API application synchronization, you ne
 * Release JRM Killboard 1.0
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+* Fixed wrong API endpoint
 
 = 1.1 =
 * Fixed Killmail validation link

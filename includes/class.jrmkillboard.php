@@ -986,7 +986,7 @@ class JRMKillboard {
             $query  = "SELECT killmailId,items FROM {$this->db->prefix}{$table} WHERE `worth` IS null;";
             $rows   = $this->db->get_results($query);
             if(!empty($rows)){
-                $round  = 0;
+                //$round  = 0;
                 foreach ($rows as $i) {
                     $items  = [];
                     $jItems = json_decode($i->items);
@@ -1013,10 +1013,10 @@ class JRMKillboard {
                         // Attach items to kill and worth it
                         $this->associateItemsAndWorth($i->killmailId,$items);
                     }
-                    $round++;
+                    /*$round++;
                     if($round>10) {
                         break;
-                    }
+                    }*/
                 }
             }
 
