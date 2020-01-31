@@ -1,6 +1,6 @@
 # JRM Killboard
 
-![version](https://img.shields.io/badge/stable-1.1.1-blue) ![license][https://img.shields.io/badge/license-GPLv2-brightgreen]
+![version](https://img.shields.io/badge/stable-1.1.1-blue) ![license](https://img.shields.io/badge/license-GPLv2-brightgreen)
 
 === JRM Killboard ===
 
