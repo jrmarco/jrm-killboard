@@ -1135,4 +1135,38 @@ class JRMKillboard {
 
         return $textResponse;
     }
+
+    public function fetchItemsList($killmailId) {
+        $itemsList = false;
+        $query = 'SELECT * FROM '.$this->prefix.self::TABKILLBOARD.' WHERE killmailId = %d;';
+        $kill = $this->db->get_row( vsprintf($query, [$killmailId]) );
+        if ($kill) {
+            $items = json_decode($kill->items);
+            foreach ($items as $item) {
+                if (isset($item->item_type_id)) {
+                    $itemsList[$item->item_type_id] = [
+                        'id' => $item->item_type_id,
+                        'quantity' => isset($item->quantity_dropped) ? $item->quantity_dropped : null
+                    ];
+                } else {
+                    $itemsList[$item->ship_type_id] = [
+                        'id' => $item->ship_type_id,
+                        'quantity' => null
+                    ];
+                }
+            }
+            $ids = implode(',', array_keys($itemsList));
+            $query = 'SELECT id,name FROM '.$this->prefix.self::TABITEM.' WHERE id IN ('.$ids.');';
+            $itemsData = $this->db->get_results( $query );
+            if (count($itemsList) != count($itemsData)) {
+                return 'missing';
+            }
+            foreach ($itemsData as $item) {
+                $itemsList[$item->id]['name'] = $item->name;
+            }
+            $itemsList = array_reverse(array_values($itemsList));
+        }
+
+        return $itemsList;
+    }
 }

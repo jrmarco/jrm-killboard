@@ -2,7 +2,7 @@
 /*
 Plugin Name: JRM Killboard
 Description: Killboard for Eve Online Killmails - Plugin allows to store and display your corporation kills using the Killmail system. They can be synched manually or automatically via the ESI API ( please read the instruction to use the ESI API ). Lots of customization allows to display your killboard in the way you like it. Developed by jrmarco ( Pillar Omaristos ). Fly safe capsuler!
-Version: 1.1.1
+Version: 1.2
 Author: jrmarco
 Author URI: https://bigm.it
 License: GPLv2 or later
@@ -13,7 +13,7 @@ Domain Path: /languages
 
 defined( 'ABSPATH' ) or die( 'Fly safe Capsuler!' );
 
-define( 'JRM_KILLBOARD_VERSION', '1.1' );
+define( 'JRM_KILLBOARD_VERSION', '1.2' );
 
 $dummyDescription = __('Killboard for Eve Online Killmails - Plugin allows to store and display your corporation kills using the Killmail system. They can be synched manually or automatically via the ESI API ( please read the instruction to use the ESI API ). Lots of customization allows to display your killboard in the way you like it. Developed by jrmarco ( Pillar Omaristos ). Fly safe capsuler!');
 
@@ -31,7 +31,7 @@ register_activation_hook( __FILE__, 'jrm_killboard_plugin_activation');
 register_uninstall_hook( __FILE__, 'jrm_killboard_plugin_uninstall');
 
 // Inlcude JS script only for plugin pages
-if(isset($_GET['page']) && in_array($_GET['page'],['jrmevekillboard_main','jrmevekillboard_settings'])) {
+if(isset($_GET['page']) && in_array($_GET['page'],['jrmevekillboard_main','jrmevekillboard_settings','jrmevekillboard_graphics'])) {
     add_action('admin_enqueue_scripts', 'jrm_killboard_enqueue_script');
 }
 
@@ -47,16 +47,17 @@ if ( is_admin() ) {
     add_action( 'wp_ajax_jrm_killboard_do_sync_worth', 'jrm_killboard_do_sync_worth' );
     add_action( 'wp_ajax_jrm_killboard_do_set_item_price', 'jrm_killboard_do_set_item_price' );
     add_action( 'wp_ajax_jrm_killboard_do_store_settings', 'jrm_killboard_do_store_settings' );
+    add_action( 'wp_ajax_jrm_killboard_do_store_graphics_settings', 'jrm_killboard_do_store_graphics_settings' );
     add_action( 'wp_ajax_jrm_killboard_do_upload_killmail', 'jrm_killboard_do_upload_killmail' );
     add_action( 'wp_ajax_jrm_killboard_do_remove_sso_auth', 'jrm_killboard_do_remove_sso_auth' );
     add_action( 'wp_ajax_jrm_killboard_do_get_log', 'jrm_killboard_do_get_log' );
     add_action( 'wp_ajax_jrm_killboard_do_clear_log', 'jrm_killboard_do_clear_log' );
-}
 
-// Check for required updates
-$currentPluginVersion = get_option('jrm_killboard_plugin_version');
-if ($currentPluginVersion != false && $currentPluginVersion != JRM_KILLBOARD_VERSION) {
-    jrm_killboard_process_plugin_update();
+    // Check for required updates
+    $currentPluginVersion = get_option('jrm_killboard_plugin_version');
+    if ($currentPluginVersion != false && $currentPluginVersion != JRM_KILLBOARD_VERSION) {
+        jrm_killboard_process_plugin_update();
+    }
 }
 
 // WP-Cron checks
@@ -71,6 +72,8 @@ if($killSyncCron !='-1') {
 // Include all ajax callbacks
 add_action( 'wp_ajax_jrm_killboard_get_table_data', 'jrm_killboard_get_table_data' );
 add_action( 'wp_ajax_nopriv_jrm_killboard_get_table_data', 'jrm_killboard_get_table_data' );
+add_action( 'wp_ajax_jrm_killboard_load_items', 'jrm_killboard_load_items' );
+add_action( 'wp_ajax_nopriv_jrm_killboard_load_items', 'jrm_killboard_load_items' );
 add_action( 'jrm_killboard_cronjob', 'jrm_killboard_perform_cron' );
 
 // Generate BE plugin admin menu
@@ -78,10 +81,12 @@ function jrm_killboard_add_admin_menu() {
     //'dashicons-editor-customchar'
     $icon = plugins_url( dirname( plugin_basename( __FILE__ ) ).'/admin/images/spaceship.png' );
     add_menu_page('JRM Killboard','JRM Killboard','edit_pages','jrmevekillboard_main','', $icon);
-    add_submenu_page('jrmevekillboard_main','JRM Killboard',__('Main','jrm_killboard'),
+    add_submenu_page('jrmevekillboard_main','JRM Killboard',__('Killboard','jrm_killboard'),
                      'edit_pages','jrmevekillboard_main','jrm_killboard_print_admin_page');
-    add_submenu_page('jrmevekillboard_main', 'JRM Killboard Settings', __('Settings','jrm_killboard'),
+    add_submenu_page('jrmevekillboard_main', 'JRM Killboard Settings', __('Configurations','jrm_killboard'),
                      'edit_pages', 'jrmevekillboard_settings','jrm_killboard_print_settings_page');
+    add_submenu_page('jrmevekillboard_main', 'JRM Killboard Graphic Settings', __('Graphics','jrm_killboard'),
+                     'edit_pages', 'jrmevekillboard_graphics','jrm_killboard_print_graphics_settings_page');
 }
 
 // Function verify existence of php modules, settings and required files
@@ -168,27 +173,12 @@ function jrm_killboard_print_settings_page() {
     $corporationId = get_option('jrm_killboard_corporation_id');
     $cronjobEndpoint = get_option('jrm_killboard_cronjob_endpoint');
     $cronjobSecret = get_option('jrm_killboard_cronjob_secret');
-    $title = get_option('jrm_killboard_title');
     $maxSync = get_option('jrm_killboard_max_sync');
-    $elements = get_option('jrm_killboard_elements');
-    $fontSize = get_option('jrm_killboard_font_size');
-    $imageSize = get_option('jrm_killboard_image_size');
-    $margin = get_option('jrm_killboard_margin');
-    $padding = get_option('jrm_killboard_padding');
-    $killType = get_option('jrm_killboard_kills_type');
-    $killsBg = get_option('jrm_killboard_kills_bg');
-    $killsText = get_option('jrm_killboard_kills_text');
-    $deathBg = get_option('jrm_killboard_deaths_bg');
-    $deathText = get_option('jrm_killboard_deaths_text');
-    $footerColor = get_option('jrm_killboard_footer_color');
-    $footerText = get_option('jrm_killboard_footer_text');
-    $cols = get_option('jrm_killboard_cols');
     $lastSync = get_option('jrm_killboard_lastSync');
     $killmailError = get_option('jrm_killboard_killmail_error');
     $killmailLog = get_option('jrm_killboard_killmail_log');
     $priceError = get_option('jrm_killboard_price_error');
     $priceLog = get_option('jrm_killboard_price_log');
-    $devSign = get_option('jrm_killboard_dev_sign') == 'show' ? true : false;
     $processTime = get_option('jrm_killboard_fetch_start');
     $processingFailed = false;
     if($processTime) {
@@ -258,6 +248,36 @@ function jrm_killboard_print_settings_page() {
     }
 
     include plugin_dir_path(__FILE__).'admin/partials/main_settings.php';
+}
+
+// Init Admin graphic settings page data & print it
+function jrm_killboard_print_graphics_settings_page() {
+    global $wpdb;
+
+    jrm_killboard_verify_modules_and_files();
+
+    // WP options
+    $title = get_option('jrm_killboard_title');
+    $elements = get_option('jrm_killboard_elements');
+    $fontSize = get_option('jrm_killboard_font_size');
+    $imageSize = get_option('jrm_killboard_image_size');
+    $margin = get_option('jrm_killboard_margin');
+    $padding = get_option('jrm_killboard_padding');
+    $killType = get_option('jrm_killboard_kills_type');
+    $killsBg = get_option('jrm_killboard_kills_bg');
+    $killsText = get_option('jrm_killboard_kills_text');
+    $deathBg = get_option('jrm_killboard_deaths_bg');
+    $deathText = get_option('jrm_killboard_deaths_text');
+    $footerColor = get_option('jrm_killboard_footer_color');
+    $footerText = get_option('jrm_killboard_footer_text');
+    $cols = get_option('jrm_killboard_cols');
+    $devSign = get_option('jrm_killboard_dev_sign') == 'show' ? true : false;
+    $btnStyles = get_option('jrm_killboard_btn_styles');
+    $imgStyles = get_option('jrm_killboard_image_styles');
+    $inspectItems = get_option('jrm_killboard_inspect_items') == 'show' ? true : false;
+    $lastPage = get_option('jrm_killboard_last_page') == 'show' ? true : false;
+
+    include plugin_dir_path(__FILE__).'admin/partials/main_graphics.php';
 }
 
 // Delete kill from the killboard
@@ -365,8 +385,26 @@ function jrm_killboard_do_store_settings() {
         update_option('jrm_killboard_corporation_id',sanitize_text_field($postData['corporation_id'])); 
         update_option('jrm_killboard_cronjob_endpoint',sanitize_text_field($postData['cron_endpoint'])); 
         update_option('jrm_killboard_cronjob_secret',sanitize_text_field($postData['cron_secret'])); 
-        update_option('jrm_killboard_title',sanitize_text_field($postData['page_title'])); 
         update_option('jrm_killboard_max_sync',sanitize_text_field($postData['max_sync'])); 
+        jrm_killboard_process_WpCron($postData['max_sync']);
+        JRMKillboard::appendLog('Configurations saved');
+
+        echo json_encode(['status' => true]);
+    }
+
+    wp_die();
+}
+
+// Save plugin graphics settings
+function jrm_killboard_do_store_graphics_settings() {
+    $nonce = sanitize_text_field($_POST['check']);
+    $postData = jrm_killboard_do_validate_post_data($_POST['settings'],'graphics');
+
+    if ( !wp_verify_nonce(  $nonce, 'jrm_killboard_op_nonce' ) || !$postData ) {
+        echo json_encode(['status' => false, 'error' => 'Invalid request']);
+    } else {
+        // Update options
+        update_option('jrm_killboard_title',sanitize_text_field($postData['page_title'])); 
         update_option('jrm_killboard_elements',sanitize_text_field($postData['elements']));
         update_option('jrm_killboard_font_size',sanitize_text_field($postData['font_size']));
         update_option('jrm_killboard_image_size',sanitize_text_field($postData['image_size']));
@@ -381,9 +419,11 @@ function jrm_killboard_do_store_settings() {
         update_option('jrm_killboard_footer_text',sanitize_text_field($postData['footer_text']));
         update_option('jrm_killboard_cols',$postData['cols']);
         update_option('jrm_killboard_dev_sign',sanitize_text_field($postData['dev_sign']));
-
-        jrm_killboard_process_WpCron($postData['max_sync']);
-        JRMKillboard::appendLog('Configurations saved');
+        update_option('jrm_killboard_btn_styles',sanitize_text_field($postData['btn_styles']));
+        update_option('jrm_killboard_image_styles',sanitize_text_field($postData['image_styles']));
+        update_option('jrm_killboard_last_page',sanitize_text_field($postData['last_page']));
+        update_option('jrm_killboard_inspect_items',sanitize_text_field($postData['inspect_items']));
+        JRMKillboard::appendLog('Graphics configurations saved');
 
         echo json_encode(['status' => true]);
     }
@@ -428,14 +468,17 @@ function jrm_killboard_do_upload_killmail() {
     wp_die();
 }
 
-// Validate admin settings post data
-function jrm_killboard_do_validate_post_data($formData) {
+// Validate settings post data
+function jrm_killboard_do_validate_post_data($formData, $type = 'settings') {
     // Admitted props only
-    $expected = [
-        'oauth','corporation_id', 'cron_secret','max_sync','elements', 'font_size', 'image_size', 
-        'kill_type','bg_kill','text_kill','bg_corporate_kill','text_corporate_kill',
-        'footer_color','footer_text','cols','dev_sign'
-    ];
+    $expected = ['oauth','corporation_id', 'cron_secret','max_sync'];
+    if ($type == 'graphics') {
+        $expected = [
+            'elements', 'font_size', 'image_size','kill_type','bg_kill','text_kill',
+            'bg_corporate_kill','text_corporate_kill','footer_color','footer_text',
+            'cols','dev_sign','last_page','inspect_items'
+        ];        
+    }
     $posted = array_keys($formData);
     $diff = array_diff($expected,$posted);
     if(!empty($diff)) {
@@ -534,8 +577,10 @@ function jrm_killboard_get_table_data() {
                 $textColor = $textColorKill;
             }
             $imageSize = get_option('jrm_killboard_image_size');
+            $imageStyles = get_option('jrm_killboard_image_styles');
+            $inspectItems = get_option('jrm_killboard_inspect_items') == 'show' ? true : false;
 
-            $kill->worth = is_null($kill->worth) ? __('Pending','jrm_killboard') : $kill->worth;
+            $kill->worth = is_null($kill->worth) ? __('Calculating','jrm_killboard') : $kill->worth;
             $color = JRMKillboard::getSecurityStatusColor($kill->securityStatus);
             $securityStatus = '(<span style="color:'.$color.';">'.$kill->securityStatus.'</span>)';
 
@@ -546,10 +591,15 @@ function jrm_killboard_get_table_data() {
             if(in_array('target', $activeCols)) {
                 $tableData .= '<td style="padding: 10px;margin:0px; border-right: 0px;">'.
                               '<img src="'.$imgUrl.'types/'.$kill->shipId.'/render?size='.$imageSize.'"></td>'.
-                              '<td style="border-left: 0px;"><b>'.$kill->shipName.'</b><br>'.__('Kill worth','jrm_killboard').'&nbsp;'.$worth.'&nbsp;ISK</td>';
+                              '<td style="border-left: 0px;"><b>'.$kill->shipName.'</b><br>'.__('Kill worth','jrm_killboard').'&nbsp;'.$worth.'&nbsp;ISK';
+                if ($inspectItems) {
+                    $tableData .= '<br><u class="load_items" data-id="'.$kill->killmailId.'" data-ship="'.$kill->shipName.'" ';
+                    $tableData .= 'data-victim="'.$kill->victim.'">'.__('Inspect items','jrm_killboard').'</u>';
+                }
+                $tableData .= '</td>';
             }
             if(in_array('ship', $activeCols)) {
-                $style = 'style="display: inline; width: '.$imageSize.'px; height: '.$imageSize.'px;"';
+                $style = 'style="'.$imageStyles.' width: '.$imageSize.'px; height: '.$imageSize.'px;"';
                 $tableData .= '<td style="border-right: 0px;"><img src="'.$imgUrl.'alliances/'.$kill->allid.'/logo?size='.$imageSize.'" '.$style.'></td>'.
                               '<td style="border-left: 0px; border-right: 0px;"><img src="'.$imgUrl.'corporations/'.$kill->corpid.'/logo?size='.$imageSize.'" '.$style.'></td>'.
                               '<td style="border-left: 0px; border-right: 0px;"><img src="'.$imgUrl.'characters/'.$kill->victimId.'/portrait?size='.$imageSize.'" '.$style.'></td>'.
@@ -635,6 +685,23 @@ function jrm_killboard_perform_cron() {
     JRMKillboard::appendLog('WP-Cron complete');
 }
 
+// Fetch items list for given killmail id
+function jrm_killboard_load_items() {
+    $nonce = sanitize_text_field($_POST['check']);
+    $killmailId = intval(sanitize_text_field($_POST['id']));
+
+    if ( ! wp_verify_nonce(  $nonce, 'jrm_killboard_op_nonce' ) || empty($killmailId) ) {
+        echo json_encode(['status' => false, 'error' => 'Invalid request']);
+    } else {
+        global $wpdb;
+
+        $app = new JRMKillboard($wpdb);
+        $itemsList = $app->fetchItemsList($killmailId);
+        echo json_encode(['items' => $itemsList]);
+    }
+    wp_die();
+}
+
 // Enqueue CSS/JS Admin file
 function jrm_killboard_enqueue_script() {
     wp_register_style( 'jrm_killboard_css_main', plugins_url('/css/bootstrap.min.css', __FILE__ ) , array(), null );
@@ -682,6 +749,10 @@ function jrm_killboard_plugin_activation() {
     add_option('jrm_killboard_cols',array_keys(JRMKillboard::getTableColumns()));
     add_option('jrm_killboard_lastSync',-1);
     add_option('jrm_killboard_dev_sign','show');
+    add_option('jrm_killboard_btn_styles','padding:6px;');
+    add_option('jrm_killboard_image_styles','display: inline;');
+    add_option('jrm_killboard_last_page','hide');
+    add_option('jrm_killboard_inspect_items','show');
 }
 
 // Create plugin upload folder
@@ -774,15 +845,17 @@ function jrm_killboard_initDB() {
 function jrm_killboard_process_plugin_update() {
     $currentVersion = get_option('jrm_killboard_plugin_version');
     switch ($currentVersion) {
-        default: // v1.1 fix log file permission
+        case '1.1':
+        case '1.1.1':
+            // Fix issue with upload dir folder/file permissions
             $upload     = wp_upload_dir();
             $upload_dir = $upload['basedir'];
             $upload_dir = $upload_dir . JRMKillboard::DATADIR;
             touch($upload_dir.'/processing.log');
             chmod($upload_dir.'/processing.log',0755);
-            add_option('jrm_killboard_plugin_version', JRM_KILLBOARD_VERSION);
             break;
     }
+    update_option('jrm_killboard_plugin_version', JRM_KILLBOARD_VERSION);
 }
 
 // Plugin Uninstall
@@ -825,6 +898,10 @@ function jrm_killboard_plugin_uninstall() {
     delete_option('jrm_killboard_esi_refresh_token');
     delete_option('jrm_killboard_fetch_start');
     delete_option('jrm_killboard_esi_init_call');
+    delete_option('jrm_killboard_btn_styles');
+    delete_option('jrm_killboard_image_styles');
+    delete_option('jrm_killboard_last_page');
+    delete_option('jrm_killboard_inspect_items');
 }
 
 // Delete tables and data

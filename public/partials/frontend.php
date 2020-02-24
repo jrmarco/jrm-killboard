@@ -5,14 +5,14 @@
         </header>
         <div style="font-size: <?php echo $fontSize ?>; <?php echo $margin.' '.$padding ?>">     
             <input type="hidden" name="fenon" id="fenon" value="<?php echo wp_create_nonce('jrm_killboard_op_nonce') ?>" />
-            <?php if(!empty($kills) && $elementsPerPage>10) : ?>
+            <?php if(!$lastPageOnly && !empty($kills) && $elementsPerPage>10) : ?>
             <div class="inline" style="margin: 5px;">
                 <div class="input-group-prepend">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="first" value="<?php _e('First','jrm_killboard') ?>" style="padding:6px;">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="prev" value="<<" style="padding:6px;">
-                    <input id="pageIndex_top" class="btn" type="button" disabled value="1 <?php echo __('of','jrm_killboard').' '.$lastPage ?>" style="padding:6px;">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="next" value=">>" style="padding:6px;">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="last" value="<?php _e('Last','jrm_killboard') ?>" style="padding:6px;">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="first" value="<?php _e('First','jrm_killboard') ?>" style="<?php echo $btnStyles ?>">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="prev" value="<<" style="<?php echo $btnStyles ?>">
+                    <input id="pageIndex_top" class="btn" type="button" disabled value="1 <?php echo __('of','jrm_killboard').' '.$lastPage ?>" style="<?php echo $btnStyles ?>">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="next" value=">>" style="<?php echo $btnStyles ?>">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="last" value="<?php _e('Last','jrm_killboard') ?>" style="<?php echo $btnStyles ?>">
                 </div>
             </div>
             <?php endif; ?>
@@ -53,12 +53,18 @@
                     <tr style="background-color:<?php echo $bgColor ?>; color:<?php echo $textColor ?>;">
                         <?php if(in_array('target', $activeCols)) : ?>
                         <td style="padding: 10px;margin:0px; border-right: 0px;"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>types/<?php echo $r->shipId ?>/render?size=<?php echo $imageSize ?>"></td>
-                        <td style="border-left: 0px;"><b><?php echo $r->shipName ?></b><br><?php _e('Kill worth','jrm_killboard') ?>&nbsp;<?php echo $worth ?>&nbsp;ISK</td>
+                        <td style="border-left: 0px;">
+                            <b><?php echo $r->shipName ?></b><br>
+                            <?php _e('Kill worth','jrm_killboard') ?>&nbsp;<?php echo $worth ?>&nbsp;ISK
+                            <?php if ($inspectItems) : ?>
+                            <br><u class="load_items" data-id="<?php echo $r->killmailId ?>" data-ship="<?php echo $r->shipName ?>" data-victim="<?php echo $r->victim ?>"><?php _e('Inspect items','jrm_killboard') ?></u>
+                            <?php endif; ?>
+                        </td>
                         <?php endif; ?>
                         <?php if(in_array('ship', $activeCols)) : ?>
-                        <td style="border-right: 0px;"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>alliances/<?php echo $r->allid ?>/logo?size=<?php echo $imageSize ?>" style="display: inline; width: <?php echo $imageSize ?>px; height: <?php echo $imageSize ?>px;"></td>
-                        <td style="border-left: 0px; border-right: 0px;"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>corporations/<?php echo $r->corpid ?>/logo?size=<?php echo $imageSize ?>" style="display: inline; width: <?php echo $imageSize ?>px; height: <?php echo $imageSize ?>px;"></td>
-                        <td style="border-left: 0px; border-right: 0px;"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>characters/<?php echo $r->victimId ?>/portrait?size=<?php echo $imageSize ?>" style="display: inline; width: <?php echo $imageSize ?>px; height: <?php echo $imageSize ?>px;"></td>
+                        <td style="border-right: 0px;"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>alliances/<?php echo $r->allid ?>/logo?size=<?php echo $imageSize ?>" style="<?php echo $imageStyles ?> width: <?php echo $imageSize ?>px; height: <?php echo $imageSize ?>px;"></td>
+                        <td style="border-left: 0px; border-right: 0px;"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>corporations/<?php echo $r->corpid ?>/logo?size=<?php echo $imageSize ?>" style="<?php echo $imageStyles ?> width: <?php echo $imageSize ?>px; height: <?php echo $imageSize ?>px;"></td>
+                        <td style="border-left: 0px; border-right: 0px;"><img src="<?php echo JRMKillboard::ESIIMAGEURL ?>characters/<?php echo $r->victimId ?>/portrait?size=<?php echo $imageSize ?>" style="<?php echo $imageStyles ?> width: <?php echo $imageSize ?>px; height: <?php echo $imageSize ?>px;"></td>
                         <td style="border-left: 0px; border-right: 0px;"><?php _e('Corporation','jrm_killboard') ?>:&nbsp;<?php echo $r->corpname ?><br><?php _e('Victim','jrm_killboard') ?>:&nbsp;<b><?php echo $r->victim ?></b></td>
                         <?php endif; ?>
                         <?php if(in_array('attackers', $activeCols)) : ?>
@@ -78,14 +84,14 @@
                 </tbody>
             </table>
             <div><?php _e('Date are synced on the Eve Online time','jrm_killboard') ?></div>
-            <?php if(!empty($kills)) : ?>
+            <?php if(!$lastPageOnly && !empty($kills)) : ?>
             <div class="inline" style="margin: 5px;">
                 <div class="input-group-prepend">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="first" value="<?php _e('First','jrm_killboard') ?>" style="padding:6px;">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="prev" value="<<" style="padding:6px;">
-                    <input id="pageIndex_bottom" class="btn" type="button" disabled value="1 <?php echo __('of','jrm_killboard').' '.$lastPage ?>" style="padding:6px;">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="next" value=">>" style="padding:6px;">
-                    <input class="btn jrm_killboard_pager" type="button" data-mode="last" value="<?php _e('Last','jrm_killboard') ?>" style="padding:6px;">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="first" value="<?php _e('First','jrm_killboard') ?>" style="<?php echo $btnStyles ?>">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="prev" value="<<" style="<?php echo $btnStyles ?>">
+                    <input id="pageIndex_bottom" class="btn" type="button" disabled value="1 <?php echo __('of','jrm_killboard').' '.$lastPage ?>" style="<?php echo $btnStyles ?>">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="next" value=">>" style="<?php echo $btnStyles ?>">
+                    <input class="btn jrm_killboard_pager" type="button" data-mode="last" value="<?php _e('Last','jrm_killboard') ?>" style="<?php echo $btnStyles ?>">
                 </div>
             </div>
             <?php endif; ?>
@@ -101,6 +107,18 @@
         </footer><!-- footer -->
     </main><!-- #main -->
 </section><!-- #primary -->
+
+<?php if ($inspectItems) : ?>
+<div id="item-modal" style="position: absolute; width: 500px; z-index: 15; top: 50%; left: 50%; margin: -250px; padding:0px 10px 2px 10px; background-color: <?php echo $footerColor ?>; color: <?php echo $footerText; ?>; border: 1px solid black; overflow-y: hidden; display: none; box-shadow: 0 30px 50px rgba(0, 0, 0, 0.8);">
+    <div>
+        <span style="float: right; position: absolute; right:10px; top: 0px;" onclick="closeItemsModal()"><?php _e('Close') ?></span>
+        <h4><?php _e('Items list','jrm_killboard') ?></h4>
+        <b><span id="item-victim"></span></b>, <i><span id="item-ship"></span></i>
+        <hr>
+    </div>
+    <div id="item-card-body" style="max-height: 500px; overflow-y: auto; font-size: <?php echo $fontSize ?>; margin:auto; padding: 30px;" data-url="<?php echo JRMKillboard::ESIIMAGEURL ?>types/ID/icon?size=32" data-dropped="<?php _e('Dropped') ?>" data-missing="<?php _e('some items are not synchronized yet','jrm_killboard') ?>"></div>
+</div>
+<?php endif; ?>
 
 <?php
 get_footer();

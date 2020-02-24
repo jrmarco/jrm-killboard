@@ -64,6 +64,10 @@ if(!file_exists($pluginDir . 'class.jrmkillboard.php') || !file_exists($pluginDi
     $margin = get_option('jrm_killboard_margin') ? 'margin:'.get_option('jrm_killboard_margin').';' : ''; 
     $padding = get_option('jrm_killboard_padding') ? 'padding: '.get_option('jrm_killboard_padding').';' : '';
     $elementsPerPage = get_option('jrm_killboard_elements');
+    $btnStyles = get_option('jrm_killboard_btn_styles');
+    $imageStyles = get_option('jrm_killboard_image_styles');
+    $lastPageOnly = (get_option('jrm_killboard_last_page') == 'show') ? true : false;
+    $inspectItems = (get_option('jrm_killboard_inspect_items') == 'show') ? true : false;
     $killType = get_option('jrm_killboard_kills_type');
     $kills = $killBoard->getKills($page, true, $killType);
 

@@ -1,6 +1,6 @@
 /** 
  * JRM Killboard - Admin JS script
- * Version: 1.0
+ * Version: 1.2
  * Author: jrmarco
  * Author URI: https://bigm.it
  * License: GPLv2 or later
@@ -76,7 +76,7 @@ function calculateWorthValue() {
 }
 
 // Save admin configuration
-function saveConfig(withAuth = false) {
+function saveSettings() {
     let nonce = document.getElementById('wpopnn').value;
 
     let data = {};
@@ -93,9 +93,6 @@ function saveConfig(withAuth = false) {
             return;
         }
 
-        if(name == 'dev_sign') {
-            value = (document.getElementById("dev_sign_yes").checked) ? 'show' : 'hide';
-        }
         if(name == 'oauth' && document.getElementById("oauth_v1") != undefined) {
             value = (document.getElementById("oauth_v1").checked) ? 1 : 2;
         }
@@ -107,6 +104,51 @@ function saveConfig(withAuth = false) {
     if(error) { return; }
 
     postData = {action: "jrm_killboard_do_store_settings", 'check': nonce, 'settings': data};
+    jQuery.post(ajaxurl, postData, function (response) {
+        json = JSON.parse(response);
+        if (json.status) {
+            location.reload();
+        } else {
+            document.getElementById("jrm_alert").classList.add('alert-danger');
+            document.getElementById('jrm_alert').innerHTML  = json.error;
+        }
+    });
+}
+
+// Save graphics configuration
+function saveGraphics() {
+    let nonce = document.getElementById('wpopnn').value;
+
+    let data = {};
+    let error = false;
+    jQuery("form#graphics_form :input").each(function(){
+        let name = jQuery(this).attr("name");
+        let value = jQuery(this).val();
+        let ignored = ['page_title', 'margin', 'padding','btn_styles','image_styles'];
+        let errorContainer = document.getElementById('message_container');
+        if((name!=undefined && name!='undefined' && ignored.indexOf(name)==-1) && value=='') {
+            document.getElementById("jrm_alert").classList.add('alert-danger');
+            document.getElementById('jrm_alert').innerHTML  = errorContainer.getAttribute('data-error-'+name);
+            error = true;
+            return;
+        }
+
+        if(name == 'dev_sign') {
+            value = (document.getElementById("dev_sign_yes").checked) ? 'show' : 'hide';
+        }
+        if(name == 'inspect_items') {
+            value = (document.getElementById("inspect_items_yes").checked) ? 'show' : 'hide';
+        }
+        if(name == 'last_page') {
+            value = (document.getElementById("last_page_yes").checked) ? 'show' : 'hide';
+        }
+
+        data[name] = value;
+    });
+
+    if(error) { return; }
+
+    postData = {action: "jrm_killboard_do_store_graphics_settings", 'check': nonce, 'settings': data};
     jQuery.post(ajaxurl, postData, function (response) {
         json = JSON.parse(response);
         if (json.status) {
