@@ -6,7 +6,7 @@ Tags: eveonline, eve online, eve, killboard, game
 Requires at least: 4.8.12
 Tested up to: 5.3.2
 Requires PHP: 5.6
-Stable tag: 1.2
+Stable tag: 1.3.1
 License: GPLv2 or later
 
 Display corporation kills using Killmails: sync it manually or automatically. Customizable: display your killboard the way you like it
@@ -35,6 +35,7 @@ PLEASE NOTICE: To be able to use the ESI API application synchronization, you ne
 * JRM Killboard -> Killboard menu item : shows kills and infos
 * JRM Killboard -> Configurations menu item : set ESI infos
 * JRM Killboard -> Graphics menu item : customize look & feel of the public page
+* JRM Killboard -> Items menu item : items list, prices
 * Create a new page, set template page attribute: JRM Killboard
 * You are ready to fly!
 
@@ -53,6 +54,15 @@ Full guide [here](https://github.com/jrmarco/jrm-killboard/wiki/Guide)
 9. Manual price set
 
 == Changelog ==
+
+= 1.3.1 =
+* Fixed issue with uploads folder permission
+
+= 1.3 =
+* Fixed item inspection page positioning
+* Add admin items page
+* New admin pages UX
+* Bulk actions
 
 = 1.2 =
 * Separated  main configurations from graphics settings

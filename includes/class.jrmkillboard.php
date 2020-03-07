@@ -111,9 +111,11 @@ class JRMKillboard {
      * @param string $type Fetch results based on type
      * @return array Array of query results from self::TABKILLBOARD table
      */
-    public function getKills($inputPage = 0, $blnPublic = true, $type = null) {
+    public function getKills($inputPage = 0, $blnPublic = true, $type = null, $frontend = true) {
         // Get options from WP
-        $elemPagina = get_option('jrm_killboard_elements');
+        $frontendElementsPerPage = get_option('jrm_killboard_elements');
+        $backendElementsPerPage = get_option('jrm_killboard_be_elements');
+        $elemPagina = $frontend ? $frontendElementsPerPage : $backendElementsPerPage;
         // Calculate offset
         $offset     = $inputPage*$elemPagina;
         $whereConditions = 0;
@@ -140,6 +142,28 @@ class JRMKillboard {
     }
 
     /**
+     * Return results based on query params from self::TABITEM table
+     *
+     * @param integer $inputPage Current page
+     * @return array Array of query results from self::TABITEM table
+     */
+    public function getItems($inputPage = 0, $limited = true) {
+        // Get options from WP
+        $elemPagina = get_option('jrm_killboard_be_elements');
+        // Calculate offset
+        $offset = $inputPage*$elemPagina;
+
+        // Query builder
+        $query   = 'SELECT * FROM '.$this->prefix.self::TABITEM;
+        if ($limited) {
+            $query .= ' ORDER BY id DESC LIMIT %d,%d';
+            $query = vsprintf($query , [$offset, $elemPagina]);
+        } 
+        $results = $this->db->get_results($query);
+        return $results;
+    }
+
+    /**
      * Return count of results based on params
      * @param  boolean $blnPublic Fetch only active kill
      * @param  String  $type      Fetch based on kill type
@@ -157,6 +181,16 @@ class JRMKillboard {
             $query .= ($whereConditions) ? ' AND k.isCorporate = 1 ' : ' WHERE k.isCorporate = 1 ';
         }
         
+        $results = $this->db->get_row( $query );
+        return $results->totale;
+    }
+
+    /**
+     * Return count of results
+     * @return Integer Count of total results
+     */
+    public function countTotalItems() {
+        $query   = 'SELECT count(*) as totale FROM '.$this->prefix.self::TABITEM;
         $results = $this->db->get_row( $query );
         return $results->totale;
     }
@@ -283,10 +317,10 @@ class JRMKillboard {
 
     /**
      * Search item price from the price file
-     * @param  Integre $id Item Id
+     * @param  Integer $id Item Id
      * @return Double Price value
      */
-    public static function searchPrice($id) {
+    public function searchPrice($id, $skipDB = false) {
         // Fetch price file
         $upload     = wp_upload_dir();
         $upload_dir = $upload['basedir'];
@@ -294,6 +328,7 @@ class JRMKillboard {
         $rawPrice = file_get_contents($upload_dir.'/price.json');
 
         $avg = -1;
+        $officialLastUpdate = get_option('jrm_killboard_lastSync');
         if(!empty($rawPrice)) {
             $prices = json_decode($rawPrice);
             foreach ($prices as $p) {
@@ -301,6 +336,17 @@ class JRMKillboard {
                     $avg = $p->average_price;
                     break;
                 }
+            }
+        }
+
+        if (!$skipDB) {
+            // Search price into DB items
+            $query = 'SELECT * FROM '.$this->prefix.self::TABITEM.' WHERE id = %d;';
+            $item = $this->db->get_row( vsprintf($query, [$id]) );
+            if ($item) {
+                $avg = $officialLastUpdate >= $item->lastSync
+                        ? $avg
+                        : (!is_null($item->price) ? $item->price : $avg );
             }
         }
 
@@ -321,8 +367,9 @@ class JRMKillboard {
                 'id' => $id, 
                 'name' => $item->name, 
                 'price' => $avg, 
+                'manual' => false,
                 'lastSync' => time()
-            ],['%d','%s','%d','%d'] );
+            ],['%d','%s','%f','%d','%d'] );
         }
 
         return $item;
@@ -692,16 +739,17 @@ class JRMKillboard {
             $table  = $this->prefix.self::TABITEM;
 
             $item = $this->fetchItem($id);
+            $avg = $this->searchPrice($id);
 
             if($item!=false) {
                 $data   = [
                     'id'            => $id,
                     'name'          => utf8_encode($item->name),
-                    'price'         => 0,
+                    'price'         => $avg,
                     'manual'        => 0,
                     'lastSync'      => (time()+(30*24*60*60))
                 ];
-                $format = ['%d','%s','%d','%d','%d'];
+                $format = ['%d','%s','%f','%d','%d'];
                 $result = $this->db->replace($table,$data,$format);
             }
         } else {
@@ -750,7 +798,7 @@ class JRMKillboard {
                 'name'     => utf8_encode($corporation->name),
                 'lastSync' => (time()+(30*24*60*60))
             ];
-            $format = ['%d','%s','%d','%s','%s'];
+            $format = ['%d','%s','%d'];
             $result = $this->db->replace($table,$data,$format);
         }
 
@@ -931,6 +979,11 @@ class JRMKillboard {
         return false;
     }
 
+    /**
+     * Clear log
+     *
+     * @return void
+     */
     public function clearQueue() {
         self::appendLog('Clear killmails queue');
         $table = $this->prefix.self::TABQUEUE;
@@ -1039,12 +1092,12 @@ class JRMKillboard {
 
         foreach ($items as $id => $quantity) {
             // Fetch item price
-            $itemPrice  = self::searchPrice($id);
-            if($itemPrice==-1) {
+            $itemPrice = $this->searchPrice($id);
+            if($itemPrice == -1) {
                 $blnMissingPrice = true;
                 $itemPrice = null;
             }
-            $exists     = $this->verifyItem($id);
+            $exists = $this->verifyItem($id);
             if($exists==false) {
                 // If not exist try to store it
                 $this->storeItem($id,$itemPrice);
@@ -1054,14 +1107,14 @@ class JRMKillboard {
                     $blnMissingPrice = false;
                 }
                 $table   = $this->db->prefix.self::TABITEM;
-                $this->db->update( $table, ['price' => $itemPrice],['id' => $id],['%d'],['%d'] );
+                $this->db->update( $table, ['price' => $itemPrice],['id' => $id],['%f'],['%d'] );
             }
             $total += $itemPrice*$quantity;
         }
 
         if($blnMissingPrice==false) {
             $table  = $this->db->prefix.self::TABKILLBOARD;
-            $this->db->update( $table, ['worth' => $total],['killmailId' => $killId],['%d'],['%d'] );
+            $this->db->update( $table, ['worth' => $total],['killmailId' => $killId],['%f'],['%d'] );
         }
     }
 
@@ -1107,8 +1160,9 @@ class JRMKillboard {
         $upload_dir = $upload['basedir'];
         $upload_dir = $upload_dir . self::DATADIR;
         if (! is_dir($upload_dir)) {
-           mkdir( $upload_dir, 0700 );
+            mkdir( $upload_dir, 0755 );
         }
+        chmod($upload_dir,0775);
     }
 
     /**
@@ -1136,6 +1190,12 @@ class JRMKillboard {
         return $textResponse;
     }
 
+    /**
+     * Return an array of items from Items table
+     *
+     * @param Integer $killmailId Killmail ID
+     * @return Array Return array of items per killmail
+     */
     public function fetchItemsList($killmailId) {
         $itemsList = false;
         $query = 'SELECT * FROM '.$this->prefix.self::TABKILLBOARD.' WHERE killmailId = %d;';
@@ -1168,5 +1228,22 @@ class JRMKillboard {
         }
 
         return $itemsList;
+    }
+
+    /**
+     * Update items prices
+     *
+     * @return void
+     */
+    public function updateItemsPrice() {
+        $table = $this->prefix.self::TABITEM;
+        // Fetch all items
+        $itemsList = $this->getItems(0,false);
+        foreach ($itemsList as $item) {
+            $avg = $this->searchPrice($item->id, true);
+            if ($avg != -1) {
+                $this->db->update( $table, ['price' => $avg, 'lastSync' => time() ],['id' => $item->id],['%f'],['%d'] );
+            }
+        }
     }
 }

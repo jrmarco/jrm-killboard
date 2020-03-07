@@ -130,7 +130,7 @@
                         <?php if($esiStatus) : ?>
                         <h6 style="margin-top: 10px;"><?php _e('Processing Logs','jrm_killboard') ?></h6>
                         <?php if(!empty($killmailError) || !empty($killmailLog) || $processingFailed) : ?>
-                        <div class="alert <?php echo (!empty($killmailError) || $processingFailed) ? 'alert-danger' : ($processTime && !$processingFailed ? 'alert-warning' : 'alert-success') ?>"><?php echo $processingFailed ? __('Processed failed. Please restart it') : ((!empty($killmailError)) ? $killmailError : $killmailLog) ?></div>
+                        <div class="alert <?php echo (!empty($killmailError) || $processingFailed) ? 'alert-danger' : ($processTime && !$processingFailed ? 'alert-warning' : 'alert-success') ?>"><?php echo $processingFailed ? __('Processed failed. Please restart it','jrm_killboard') : ((!empty($killmailError)) ? $killmailError : $killmailLog) ?></div>
                         <?php endif; ?> 
                         <?php if(!empty($priceError) || !empty($priceLog)) : ?>
                         <div class="alert <?php echo (!empty($priceError)) ? 'alert-danger' : 'alert-success' ?>"><?php echo (!empty($priceError)) ? $priceError : $priceLog ?></div>
@@ -143,7 +143,7 @@
                         </div>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend"><span class="input-group-text" style="font-size: x-small;"><?php _e('Prices','jrm_killboard') ?></span></div>
-                            <button class="btn btn-sm btn-outline-primary" type="button" onclick="syncPrice()"><?php _e('Synchronize','jrm_killboard') ?></button><br><br>
+                            <button class="btn btn-sm btn-outline-primary" type="button" onclick="updateItemsPrice()"><?php _e('Synchronize','jrm_killboard') ?></button><br><br>
                         </div>
                     </div>
                 </div>

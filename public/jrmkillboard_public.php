@@ -61,10 +61,12 @@ if(!file_exists($pluginDir . 'class.jrmkillboard.php') || !file_exists($pluginDi
     }
 
     // View vars
+    $titleAlign = get_option('jrm_killboard_title_align');
     $margin = get_option('jrm_killboard_margin') ? 'margin:'.get_option('jrm_killboard_margin').';' : ''; 
     $padding = get_option('jrm_killboard_padding') ? 'padding: '.get_option('jrm_killboard_padding').';' : '';
     $elementsPerPage = get_option('jrm_killboard_elements');
     $btnStyles = get_option('jrm_killboard_btn_styles');
+    $btnAlign = get_option('jrm_killboard_btn_align');
     $imageStyles = get_option('jrm_killboard_image_styles');
     $lastPageOnly = (get_option('jrm_killboard_last_page') == 'show') ? true : false;
     $inspectItems = (get_option('jrm_killboard_inspect_items') == 'show') ? true : false;
@@ -81,8 +83,14 @@ if(!file_exists($pluginDir . 'class.jrmkillboard.php') || !file_exists($pluginDi
     $fontSize          = get_option('jrm_killboard_font_size');
     $imageSize         = get_option('jrm_killboard_image_size');
     $selectedCols      = get_option('jrm_killboard_cols');
+    $titleColor        = get_option('jrm_killboard_title_color');
+    $titleText         = get_option('jrm_killboard_title_text');
+    $tableHeaderColor  = get_option('jrm_killboard_table_header_color');
+    $tableHeaderText   = get_option('jrm_killboard_table_hedaer_text');
     $footerColor       = get_option('jrm_killboard_footer_color');
     $footerText        = get_option('jrm_killboard_footer_text');
+    $inspectColor      = get_option('jrm_killboard_inspect_color');
+    $inspectText       = get_option('jrm_killboard_inspect_text');
     $devSign           = (get_option('jrm_killboard_dev_sign') == 'show') ? true : false;
 
     $columns           = JRMKillboard::getTableColumns();

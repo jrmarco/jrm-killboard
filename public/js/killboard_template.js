@@ -1,6 +1,6 @@
 /** 
  * JRM Killboard - Front end JS script
- * Version: 1.2
+ * Version: 1.3
  * Author: jrmarco
  * Author URI: https://bigm.it
  * License: GPLv2 or later
@@ -44,11 +44,11 @@ function loadItems() {
                 if(data.items && data.items != 'missing') {
                     document.getElementById('item-ship').innerHTML = element.getAttribute('data-ship');
                     document.getElementById('item-victim').innerHTML = element.getAttribute('data-victim');
-                    html = '<table><tbody>';
+                    html = '<table style="margin-top:5px;"><tbody style="font-size: '+cardBody.style.fontSize+';">';
                     for (i=0;i<data.items.length;i++) {
                         url = cardBody.getAttribute('data-url').replace('ID',data.items[i].id);
                         size = cardBody.getAttribute('data-size');
-                        html += '<tr><td><img src="'+url+'" /></td><td>'+data.items[i].name;
+                        html += '<tr><td width="40px"><img src="'+url+'" /></td><td style="margin-left:4px;">'+data.items[i].name;
                         html += data.items[i].quantity != null ? '<br>[ '+cardBody.getAttribute('data-dropped')+' '+data.items[i].quantity+' ]' : '';
                         html += '</td></tr>';
                     }
@@ -64,6 +64,11 @@ function loadItems() {
             });
         });
     }
+
+    let top = (document.documentElement.clientHeight-550)/2;
+    let left = (document.documentElement.clientWidth-jQuery('#item-modal').width())/2;
+    document.getElementById('item-modal').style.top = top+'px';
+    document.getElementById('item-modal').style.left = left+'px';
 }
 
 function closeItemsModal() {

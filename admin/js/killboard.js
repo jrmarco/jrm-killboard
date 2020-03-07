@@ -1,6 +1,6 @@
 /** 
  * JRM Killboard - Admin JS script
- * Version: 1.2
+ * Version: 1.3
  * Author: jrmarco
  * Author URI: https://bigm.it
  * License: GPLv2 or later
@@ -189,14 +189,16 @@ function fetchKillmail() {
 }
 
 // Manually set a price of item
-function setPriceValue() {
+function setPriceValue(item = false, price = false) {
     document.getElementById('jrm_alert').innerHTML = document.getElementById('loading-message').value;
     document.getElementById("jrm_alert").classList.remove('alert-success');
     document.getElementById("jrm_alert").classList.add('alert-warning');
 
     nonce = document.getElementById('wpopnn').value;
-    item = document.getElementById('items').value;
-    price = document.getElementById('price').value;
+    if (!item && !price) {
+        item = document.getElementById('items').value;
+        price = document.getElementById('price').value;
+    }
 
     if(item!='' && price!='' && item.match(/[0-9]{1}/g) && price.match(/[0-9]{1}/g)) {
         data = {action: "jrm_killboard_do_set_item_price", id:item, price:price, check: nonce};
@@ -266,6 +268,7 @@ function generateToken() {
     document.getElementById('cron_secret').value = partOne+partTwo;
 }
 
+// Get log
 function getLog() {
     nonce = document.getElementById('wpopnn').value;
 
@@ -277,6 +280,7 @@ function getLog() {
     jQuery('#modal_log').show();
 }
 
+// Hide log modal
 function hideLogs() {
     jQuery('#modal_log').hide();   
 }
@@ -289,4 +293,161 @@ function clearLog() {
     jQuery.post(ajaxurl, data, function (response) {
         location.reload();
     });
+}
+
+// Toggle tab elements
+function changeTab() {
+    let structures = document.getElementsByClassName('tabstructure');
+    let colors = document.getElementsByClassName('tabcolors');
+    event.target.parentElement.parentElement.querySelector('.active').classList.remove('active');
+    event.target.classList.add('active');
+    if (event.target.getAttribute('data-tab') == 'structure') {
+        structures[0].classList.remove('d-none');
+        structures[1].classList.remove('d-none');
+        colors[0].classList.add('d-none');
+        colors[1].classList.add('d-none');
+    } else {
+        structures[0].classList.add('d-none');
+        structures[1].classList.add('d-none');
+        colors[0].classList.remove('d-none');
+        colors[1].classList.remove('d-none');
+    }
+
+
+}
+
+// Multi select kills
+function selectKills(mode) {
+    let checkboxes = document.getElementsByClassName('multiselect_kill');
+    for (i=0;i<checkboxes.length;i++) {
+        checkboxes[i].checked = mode;
+    }
+}
+
+// Process bulk elements
+function groupProcessing() {
+    let groupAction = document.getElementById('group_action');
+    let checkboxes = document.getElementsByClassName('multiselect_kill');
+    let ids = [];
+    for (i=0;i<checkboxes.length;i++) {
+        if (checkboxes[i].checked) {
+            ids.push(checkboxes[i].getAttribute('data-value'));
+        }
+    }
+    if (groupAction.value == 'delete') {
+        deleteBulk(ids);
+    } else {
+        toggleBulk(ids,groupAction.value);
+    }
+}
+
+// Toggle multiple kills
+function toggleBulk(ids,mode) {
+    nonce = document.getElementById('wpopnn').value;
+    let stringIds = ids.join(',');
+    let offtime = 1000*(ids.length/5);
+    data = {action: "jrm_killboard_toggle_kills", check: nonce, ids: stringIds, toggle:mode };
+    jQuery.post(ajaxurl, data, function(response) {
+        json = JSON.parse(response);
+        if(json.status) {
+            location.reload();
+        }
+    });
+}
+
+// Delete multiple kills
+function deleteBulk(ids) {
+    if (confirm(document.getElementById('group_action').getAttribute('data-delete-all'))) {
+        nonce = document.getElementById('wpopnn').value;
+        let stringIds = ids.join(',');
+        data = {action: "jrm_killboard_delete_bulk", check: nonce, ids: stringIds};
+        jQuery.post(ajaxurl, data, function (response) {
+            location.reload();
+        });
+    }
+}
+
+// Update items price
+function updateItemsPrice(needCallback = false) {
+    let div = '';
+    if (needCallback) {
+        div = '<tr><td colspan="5" align="center" class="bg-warning text-dark">'+document.getElementById('loading-message').value+'</td></tr>';
+        document.getElementById('items').querySelector('tbody').innerHTML = div;
+    }
+    nonce = document.getElementById('wpopnn').value;
+
+    data = {action: "jrm_killboard_do_sync_price", check: nonce, callback: needCallback};
+    jQuery.post(ajaxurl, data, function (response) {
+        json = JSON.parse(response);
+        if (json.status) {
+            if (needCallback) {
+                data = {action: "jrm_killboard_do_update_items_price", check: json.callback};
+                jQuery.post(ajaxurl, data, function (response2) {
+                    json2 = JSON.parse(response2);
+                    if (json2.status) {
+                        location.reload();
+                    } else {
+                        document.getElementById('jrm_alert').innerHTML  = json.error;            
+                    }
+                });
+            } else {
+                location.reload();
+            }
+        } else {
+            document.getElementById('jrm_alert').innerHTML  = json.error;
+        }
+    });
+}
+
+// Enable inline edit price element
+function enableEdit() {
+    let element = event.target;
+    if (element.getAttribute('data-editing') == 'false') {
+        element.innerHTML = '';
+        let input = document.createElement('input');
+        input.type = 'text';
+        input.value = element.getAttribute('data-flatprice');
+        input.setAttribute('data-value',input.value);
+        input.addEventListener('blur',function() {
+            this.setAttribute('data-value',this.value);
+        });
+        element.append(input);
+        let save = document.createElement('button');
+        save.classList = 'btn btn-sm btn-primary ml-1 mr-1 itemSnippet';
+        save.setAttribute('data-type','save');
+        save.innerHTML = 'Save';
+        save.addEventListener('click',function() {
+            processSnippet(event.target)
+        });
+        element.append(save);
+        let abort = document.createElement('button');
+        abort.classList = 'btn btn-sm btn-danger itemSnippet';
+        abort.setAttribute('data-type','abort');
+        abort.innerHTML = 'Close';
+        abort.addEventListener('click',function() {
+            processSnippet(event.target)
+        });
+        element.append(abort);
+        element.setAttribute('data-editing','true');
+    }
+}
+
+// Trigger inline action
+function processSnippet(element) {
+    let div = '<tr><td colspan="5" align="center" class="bg-warning text-dark">'+document.getElementById('loading-message').value+'</td></tr>';
+    
+    let loader = document.getElementById("jrm_alert");
+    let parent = element.parentElement;
+    let type = element.getAttribute('data-type');
+    if (type == 'abort') {
+        parent.innerHTML = parent.getAttribute('data-dressed');
+        parent.setAttribute('data-editing','false');
+    } else {
+        parent.parentElement.outerHTML = div;
+        let input = parent.querySelector('input');
+        let itemId = parent.getAttribute('data-id');
+        let price = input.getAttribute('data-value');
+        parent.setAttribute('data-editing','false');
+        setPriceValue(itemId,price);
+    }
 }
